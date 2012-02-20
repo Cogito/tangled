@@ -60,7 +60,11 @@
       return node;
     };
     var extend = function(v3) {
-      this.tail = Node(this.v2, v3);
+      if (this.tail) {
+        this.tail.extend(v3);
+      } else {
+        this.tail = Node(this.v2, v3);
+      }
       return this.tail;
     };
     return {
