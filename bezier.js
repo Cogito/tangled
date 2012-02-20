@@ -125,18 +125,7 @@
       context.stroke();
     }
   };
-  var draw = function() {
-    var canvas = document.getElementById('myCanvas');
-    var start = Point(0, 50);
-    var vectors = Node(Vector(20, 0), Vector(40, 1));
-    vectors.extend(Vector(35,-1))
-      .extend(Vector(15,0))
-      .extend(Vector(25,-0.5))
-      .extend(Vector(15,0.8))
-      .extend(Vector(50,2.4))
-      .extend(Vector(50,2.4))
-      .extend(Vector(50,1.5))
-      .extend(Vector(100,0));
+  var draw = function(canvas, start, vectors) {
     if (canvas.getContext){
       var ctx = canvas.getContext('2d');
       clearCanvas(canvas, ctx);
@@ -148,7 +137,18 @@
       }
     }
   };
+  var start = Point(0, 50);
+  var vectors = Node(Vector(20, 0), Vector(40, 1));
+  vectors.extend(Vector(35,-1))
+    .extend(Vector(15,0))
+    .extend(Vector(25,-0.5))
+    .extend(Vector(15,0.8))
+    .extend(Vector(50,2.4))
+    .extend(Vector(50,2.4))
+    .extend(Vector(50,1.5))
+    .extend(Vector(100,0));
   $(function() {
-    draw();
+    var $canvas = $("#myCanvas");
+    draw($canvas[0], start, vectors);
   });
 })();
