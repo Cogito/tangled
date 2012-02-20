@@ -1,4 +1,5 @@
 (function() {
+  var drawVectors = false;
   var Point = function(x, y) {
     return {
       x: x,
@@ -93,11 +94,13 @@
     curves.bez1.draw(context);
     curves.bez2.draw(context);
     context.stroke();
-    context.strokeStyle = "rgba(255,0,0,0.5)";
-    context.beginPath();
-    v1.draw(context, start);
-    v2.draw(context, start.translate(v1));
-    context.stroke();
+    if (drawVectors) {
+      context.strokeStyle = "rgba(255,0,0,0.5)";
+      context.beginPath();
+      v1.draw(context, start);
+      v2.draw(context, start.translate(v1));
+      context.stroke();
+    }
   };
   var draw = function() {
     var canvas = document.getElementById('myCanvas');
