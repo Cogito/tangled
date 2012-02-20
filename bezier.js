@@ -156,7 +156,13 @@
     var endPoint = draw($canvas[0], start, vectors);
     var lastNode;
     $canvas.mousedown(function(e) {
-      vectors.extend(Point(e.pageX, e.pageY).vectorFrom(endPoint));
+
+      var parentOffset = $(this).offset();
+      //or $(this).offset(); if you really just want the current element's offset
+      var relX = e.pageX - parentOffset.left;
+      var relY = e.pageY - parentOffset.top;
+
+      vectors.extend(Point(relX, relY).vectorFrom(endPoint));
       draw($canvas[0], start, vectors);
       lastNode = vectors;
       while (lastNode.tail) {
@@ -165,8 +171,14 @@
     });
     $canvas.mousemove(function(e) {
       if (lastNode) {
-        lastNode.v2 = Point(e.pageX, e.pageY).vectorFrom(endPoint);
+
+      var parentOffset = $(this).offset();
+      //or $(this).offset(); if you really just want the current element's offset
+      var relX = e.pageX - parentOffset.left;
+      var relY = e.pageY - parentOffset.top;
+        lastNode.v2 = Point(relX, relY).vectorFrom(endPoint);
         draw($canvas[0], start, vectors);
+        $("#angles").html((lastNode.v1.angle + (2 * Math.PI)) % (2 * Math.PI) );
       }
     });
     $canvas.mouseup(function(e) {
