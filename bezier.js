@@ -80,12 +80,17 @@
       context.moveTo(this.start.x, this.start.y);
       context.bezierCurveTo(this.startCP.x, this.startCP.y, this.endCP.x, this.endCP.y, this.end.x, this.end.y);
     };
+    var drawReverse = function(context) {
+      context.moveTo(this.end.x, this.end.y);
+      context.bezierCurveTo(this.endCP.x, this.endCP.y, this.startCP.x, this.startCP.y, this.start.x, this.start.y);
+    };
     return {
       start: startPoint,
       startCP: startPoint.translate(startControlVector),
       end: endPoint,
       endCP: endPoint.translate(endControlVector),
-      draw: draw
+      draw: draw,
+      drawReverse: drawReverse
     }
   }
   var bezierPoints = function(p, v1, v2) {
