@@ -92,8 +92,9 @@
     var w = 3;
     var cpInnerScale = 0.7;
     var cpOuterScale = 0.9;
-    var cpLeftScale = v1.angle - v2.angle < 0 ? cpOuterScale : cpInnerScale;
-    var cpRightScale = v1.angle - v2.angle < 0 ? cpInnerScale : cpOuterScale;
+    var bendLeft = (v1.angle - Math.PI < v2.angle && v2.angle < v1.angle) || (v1.angle + Math.PI < v2.angle);
+    var cpLeftScale =  bendLeft ? cpInnerScale : cpOuterScale;
+    var cpRightScale = bendLeft ? cpOuterScale : cpInnerScale;
     var end_point = p.translate(v1).translate(v2);
     return {
       bez1: Bezier(
