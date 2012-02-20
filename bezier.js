@@ -121,8 +121,11 @@
     context.strokeStyle = "rgb(0,0,0)";
     context.beginPath();
     curves.bez1.draw(context);
-    curves.bez2.draw(context);
-    context.stroke();
+    context.lineTo(curves.bez2.end.x,curves.bez2.end.y)
+    curves.bez2.drawReverse(context);
+    context.lineTo(curves.bez1.start.x,curves.bez1.start.y)
+    //context.stroke();
+    context.fill();
     if (drawVectors) {
       context.strokeStyle = "rgba(255,0,0,0.5)";
       context.beginPath();
