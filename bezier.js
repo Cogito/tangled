@@ -22,6 +22,12 @@
           this.x + vector.length * Math.cos(vector.angle),
           this.y + vector.length * Math.sin(vector.angle)
         );
+      },
+      vectorFrom: function(point) {
+        return Vector(this.distanceTo(point), Math.atan2(this.y - point.y, this.x - point.x));
+      },
+      distanceTo: function (point) {
+        return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
       }
     }
   };
