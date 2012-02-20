@@ -1,5 +1,18 @@
 (function() {
   var drawVectors = false;
+  var clearCanvas = function (canvas, context) {
+    var context = context || canvas.getContext?canvas.getContext('2d'):undefined;
+    // Store the current transformation matrix
+    context.save();
+
+    // Use the identity matrix while clearing the canvas
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Restore the transform
+    context.restore();
+  };
+
   var Point = function(x, y) {
     return {
       x: x,
@@ -116,6 +129,7 @@
       .extend(Vector(100,0));
     if (canvas.getContext){
       var ctx = canvas.getContext('2d');
+      clearCanvas(canvas, ctx);
       var p = start;
       var node = vectors;
       for(; node; node = node.tail) {
