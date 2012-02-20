@@ -131,11 +131,14 @@
       clearCanvas(canvas, ctx);
       var p = start;
       var node = vectors;
+      var lastPoint;
       for(; node; node = node.tail) {
         drawPoints(ctx, p, node.v1, node.v2);
         p = p.translate(node.v1).translate(node.v2);
+        lastPoint = p.translate(node.v2);
       }
     }
+    return lastPoint;
   };
   var start = Point(0, 50);
   var vectors = Node(Vector(20, 0), Vector(40, 1));
@@ -149,6 +152,25 @@
     .extend(Vector(100,0));
   $(function() {
     var $canvas = $("#myCanvas");
-    draw($canvas[0], start, vectors);
+    var endPoint = draw($canvas[0], start, vectors);
+    var lastNode;
+    $canvas.mousedown(function(e) {
+      vectors.extend(Point(e.pageX, e.pageY).vectorFrom(endPoint));
+      draw($canvas[0], start, vectors);
+      lastNode = vectors;
+      while (lastNode.tail) {
+        lastNode = lastNode.tail;
+      }
+    });
+    $canvas.mousemove(function(e) {
+      if (lastNode) {
+        lastNode.v2 = Point(e.pageX, e.pageY).vectorFrom(endPoint);
+        draw($canvas[0], start, vectors);
+      }
+    });
+    $canvas.mouseup(function(e) {
+      endPoint = draw($canvas[0], start, vectors);
+      lastNode = undefined;
+    });
   });
 })();
