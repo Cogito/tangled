@@ -93,6 +93,9 @@ var utilities = (function(){
       } else {
         this.tail = Tangle(Vector(v3.length * 0.2,0), v3);
       }
+      // Every time we extend the tangle, make it a little thicker
+      this.segment.endWidth = this.tail.segment.startWidth;
+      this.segment.startWidth = calculateNewThickness(this.segment.startWidth);
       return this.tail;
     };
     var lastPoint = function(start) {
@@ -116,13 +119,22 @@ var utilities = (function(){
         return this;
       }
     };
+    var calculateNewThickness = function(width) {
+      var maxWidth = 5;
+      if (width < 0) width = 0;
+      if (width > maxWidth) width = maxWidth;
+      var tmp = (width/maxWidth - 0.5) * Math.PI; // value in the range [-PI/2, PI/2]
+      tmp = Math.atan(Math.tan(tmp) + 0.07); // still in the range [-PI/2, PI/2], but slightly more positive
+      tmp = (tmp / Math.PI + 0.5) * maxWidth; // now in the range [0, maxWidth]
+      return tmp;
+    };
     return {
       add: add,
       extend: extend,
       lastPoint: lastPoint,
       draw: draw,
       lastNode: lastNode,
-      segment: Segment(v1, v2, 5, 5),
+      segment: Segment(v1, v2, 1, 0.1),
       tail: tail // a list of vectors! (max one to start, then two. probably no more)
     };
   };
