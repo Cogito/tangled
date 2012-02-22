@@ -1,20 +1,4 @@
-(function($, options) {
-  var drawVectors = options.drawVectors || false;
-  var ticksEnabled = options.ticksEnabled || false;
-  var frameRate = options.frameRate || 24;
-  var clearCanvas = function (canvas, context) {
-    context = context || canvas.getContext?canvas.getContext('2d'):undefined;
-    // Store the current transformation matrix
-    context.save();
-
-    // Use the identity matrix while clearing the canvas
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Restore the transform
-    context.restore();
-  };
-
+var utilities = (function(){
   var Point = function(x, y) {
     var translate = function(vector) {
       return Point(
@@ -64,35 +48,37 @@
       angle: angle // radians!
     };
   };
-  var Node = function(v1, v2, tail) {
-    var Segment = function(v1, v2, startWidth, endWidth) {
-      var drawPoints = function(context, start) {
-        var curves = bezierPoints(start, this);
-        context.strokeStyle = "rgb(0,0,0)";
+  var Segment = function(v1, v2, startWidth, endWidth) {
+    var draw = function(context, start, options) {
+      options = options || {};
+      var drawVectors = options.drawVectors || false;
+      var curves = bezierPoints(start, this);
+      context.strokeStyle = "rgb(0,0,0)";
+      context.beginPath();
+      curves.bez1.draw(context);
+      context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
+      curves.bez2.drawReverse(context);
+      context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
+      //context.stroke();
+      context.fill();
+      if (drawVectors) {
+        context.strokeStyle = "rgba(255,0,0,0.5)";
         context.beginPath();
-        curves.bez1.draw(context);
-        context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
-        curves.bez2.drawReverse(context);
-        context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
-        //context.stroke();
-        context.fill();
-        if (drawVectors) {
-          context.strokeStyle = "rgba(255,0,0,0.5)";
-          context.beginPath();
-          this.v1.draw(context, start);
-          this.v2.draw(context, start.advance(this.v1));
-          context.stroke();
-        }
-        return curves.heading;
-      };
-      return {
-        drawPoints: drawPoints,
-        v1: v1,
-        v2: v2,
-        startWidth: startWidth || 5,
-        endWidth: endWidth || 5
+        this.v1.draw(context, start);
+        this.v2.draw(context, start.advance(this.v1));
+        context.stroke();
       }
+      return curves.heading;
     };
+    return {
+      draw: draw,
+      v1: v1,
+      v2: v2,
+      startWidth: startWidth || 5,
+      endWidth: endWidth || 5
+    }
+  };
+  var Node = function(v1, v2, tail) {
     var add = function(node) {
       if (this.tail) {
         this.tail.add(node);
@@ -117,10 +103,10 @@
         return nextStart;
       }
     };
-    var draw = function(context, start) {
-      this.segment.drawPoints(context, start);
+    var draw = function(context, start, options) {
+      this.segment.draw(context, start,options);
       if (this.tail) {
-        this.tail.draw(context, start.advance(this.segment.v1, this.segment.v2));
+        this.tail.draw(context, start.advance(this.segment.v1, this.segment.v2), options);
       }
     };
     var lastNode = function () {
@@ -158,6 +144,20 @@
       drawReverse: drawReverse
     }
   };
+  var Start = function(p, h) {
+    var advance = function(v1, v2) {
+      v2 = v2 || Vector(0,0);
+      return Start(
+        this.p.translate(v1.rotate(this.h)).translate(v2.rotate(v1.angle+this.h)),
+        (this.h + v1.angle + v2.angle) % (2 * Math.PI)
+      );
+    };
+    return {
+      p: p || Point(0,0),
+      h: h || 0,
+      advance: advance
+    }
+  };
   var bezierPoints = function(start, segment) {
     var w = 3;
     var v1 = segment.v1;
@@ -188,27 +188,49 @@
       heading: v2.angle % (Math.PI * 2)
     };
   };
+  return {
+    Point: Point,
+    Vector: Vector,
+    Node: Node,
+    Bezier: Bezier,
+    Start: Start
+  }
+})();
+
+(function($, utilities, options) {
+  // import some utility class function thingos
+  var Point = utilities.Point;
+  var Vector = utilities.Vector;
+  var Node = utilities.Node;
+  var Bezier = utilities.Bezier;
+  var Start = utilities.Start;
+
+  // set module options up
+  options = options || {};
+  var drawVectors = options.drawVectors || false;
+  var ticksEnabled = options.ticksEnabled || false;
+  var frameRate = options.frameRate || 24;
+  var clearCanvas = function (canvas, context) {
+    context = context || canvas.getContext?canvas.getContext('2d'):undefined;
+    // Store the current transformation matrix
+    context.save();
+
+    // Use the identity matrix while clearing the canvas
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Restore the transform
+    context.restore();
+  };
   var draw = function(canvas, start, vectors) {
     if (canvas.getContext){
       var context = canvas.getContext('2d');
       clearCanvas(canvas, context);
-      vectors.draw(context, start);
+      vectors.draw(context, start, {drawVectors: drawVectors});
     }
   };
-  var Start = function(p, h) {
-    var advance = function(v1, v2) {
-      v2 = v2 || Vector(0,0);
-      return Start(
-        this.p.translate(v1.rotate(this.h)).translate(v2.rotate(v1.angle+this.h)),
-        (this.h + v1.angle + v2.angle) % (2 * Math.PI)
-      );
-    };
-    return {
-      p: p || Point(0,0),
-      h: h || 0,
-      advance: advance
-    }
-  };
+
+
   var tick = function(canvas, start, vectors) {
     var range = 1;
     if (ticksEnabled){
@@ -272,4 +294,4 @@
       $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     });
   });
-})(jQuery, {drawVectors: false, ticksEnabled: false, frameRate:5});
+})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate:5});
