@@ -1,6 +1,7 @@
-(function($) {
-  var drawVectors = false;
-  var ticksEnabled = true;
+(function($, options) {
+  var drawVectors = options.drawVectors || false;
+  var ticksEnabled = options.ticksEnabled || false;
+  var frameRate = options.frameRate || 24;
   var clearCanvas = function (canvas, context) {
     context = context || canvas.getContext?canvas.getContext('2d'):undefined;
     // Store the current transformation matrix
@@ -228,11 +229,12 @@
     var $straight = $("#straight");
     var $left = $("#left");
     var $right = $("#right");
+    $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     draw($canvas[0], start, vectors);
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Node(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Node(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Node(Vector(15,0), Vector(15,Math.PI/2)));
-    setInterval(tick, 1000/24, $canvas[0],start, vectors);
+    setInterval(tick, 1000/frameRate, $canvas[0],start, vectors);
     var lastSegment;
     var lp;
     $canvas.mousedown(function(e) {
@@ -270,4 +272,4 @@
       $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     });
   });
-})(jQuery);
+})(jQuery, {drawVectors: false, ticksEnabled: false, frameRate:5});
