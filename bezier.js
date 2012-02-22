@@ -52,6 +52,7 @@ var utilities = (function(){
     var draw = function(context, start, options) {
       options = options || {};
       var drawVectors = options.drawVectors || false;
+      var wireFrames = options.wireFrames || false;
       var curves = bezierPoints(start, this);
       context.strokeStyle = "rgb(0,0,0)";
       context.beginPath();
@@ -59,8 +60,7 @@ var utilities = (function(){
       context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
       curves.bez2.drawReverse(context);
       context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
-      //context.stroke();
-      context.fill();
+      wireFrames ? context.stroke() : context.fill();
       if (drawVectors) {
         context.strokeStyle = "rgba(255,0,0,0.5)";
         context.beginPath();
@@ -219,7 +219,6 @@ var utilities = (function(){
 
   // set module options up
   options = options || {};
-  var drawVectors = options.drawVectors || false;
   var ticksEnabled = options.ticksEnabled || false;
   var frameRate = options.frameRate || 24;
   var clearCanvas = function (canvas, context) {
@@ -238,7 +237,7 @@ var utilities = (function(){
     if (canvas.getContext){
       var context = canvas.getContext('2d');
       clearCanvas(canvas, context);
-      vectors.draw(context, start, {drawVectors: drawVectors});
+      vectors.draw(context, start, {drawVectors: options.drawVectors, wireFrames: options.wireFrames});
     }
   };
 
@@ -306,4 +305,4 @@ var utilities = (function(){
       $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     });
   });
-})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate:5});
+})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: true});
