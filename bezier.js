@@ -76,7 +76,7 @@
       if (this.tail) {
         this.tail.extend(v3);
       } else {
-        this.tail = Node(Vector(10,0), v3);
+        this.tail = Node(Vector(v3.length * 0.2,0), v3);
       }
       return this.tail;
     };
@@ -191,8 +191,9 @@
     }
   };
   var tick = function(canvas, start, vectors) {
+    var range = 2;
     if (ticksEnabled){
-      vectors.extend(Vector(5,0));
+      vectors.extend(Vector(5,(Math.random() - 0.5) * range));
       draw(canvas, start, vectors);
     }
   };
@@ -213,7 +214,7 @@
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Node(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Node(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Node(Vector(15,0), Vector(15,Math.PI/2)));
-    setInterval(tick, 2000, $canvas[0],start, vectors);
+    setInterval(tick, 1000/24, $canvas[0],start, vectors);
     var lastNode;
     var lp;
     $canvas.mousedown(function(e) {
