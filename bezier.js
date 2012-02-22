@@ -1,5 +1,6 @@
 (function($) {
   var drawVectors = false;
+  var ticksEnabled = true;
   var clearCanvas = function (canvas, context) {
     context = context || canvas.getContext?canvas.getContext('2d'):undefined;
     // Store the current transformation matrix
@@ -189,6 +190,12 @@
       advance: advance
     }
   };
+  var tick = function(canvas, start, vectors) {
+    if (ticksEnabled){
+      vectors.extend(Vector(5,0));
+      draw(canvas, start, vectors);
+    }
+  };
   var start = Start(Point(0, 50), 0);
   var vectors = Node(Vector(20, 0), Vector(40, 1));
   vectors.extend(Vector(35,-1))
@@ -206,6 +213,7 @@
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Node(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Node(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Node(Vector(15,0), Vector(15,Math.PI/2)));
+    setInterval(tick, 2000, $canvas[0],start, vectors);
     var lastNode;
     var lp;
     $canvas.mousedown(function(e) {
@@ -240,6 +248,10 @@
     $right.click(function() {
       vectors.add(Node(Vector(15,0), Vector(15,Math.PI/2)));
       draw($canvas[0], start, vectors);
+    });
+    $("#toggle").click(function() {
+      ticksEnabled = !ticksEnabled;
+      $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     });
   });
 })(jQuery);
