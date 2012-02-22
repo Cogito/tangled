@@ -26,10 +26,15 @@
     var distanceTo = function (point) {
       return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
     };
+    var relativeTo = function (element) {
+      var offset = $(element).offset();
+      return Point(this.x - offset.left, this.y - offset.top);
+    };
     return {
       translate: translate,
       vectorFrom: vectorFrom,
       distanceTo: distanceTo,
+      relativeTo: relativeTo,
       x: x,
       y: y
     };
@@ -204,13 +209,8 @@
     var lastNode;
     var lp;
     $canvas.mousedown(function(e) {
-      var parentOffset = $(this).offset();
-      //or $(this).offset(); if you really just want the current element's offset
-      var relX = e.pageX - parentOffset.left;
-      var relY = e.pageY - parentOffset.top;
-
       lp = vectors.lastPoint(start);
-      vectors.extend(Point(relX, relY).vectorFrom(lp.p).rotate(-lp.h));
+      vectors.extend(Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p).rotate(-lp.h));
       draw($canvas[0], start, vectors);
       lastNode = vectors;
       while (lastNode.tail) {
@@ -219,10 +219,7 @@
     });
     $canvas.mousemove(function(e) {
       if (lastNode) {
-        var parentOffset = $(this).offset();
-        var relX = e.pageX - parentOffset.left;
-        var relY = e.pageY - parentOffset.top;
-        lastNode.v2 = Point(relX, relY).vectorFrom(lp.p.translate(lastNode.v1.rotate(lp.h))).rotate(-lp.h);
+        lastNode.v2 = Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p.translate(lastNode.v1.rotate(lp.h))).rotate(-lp.h);
         lastNode.v1.length = lastNode.v2.length/2;
         draw($canvas[0], start, vectors);
         //$("#angles").html((lastNode.v1.angle + (2 * Math.PI)) % (2 * Math.PI));
