@@ -78,7 +78,7 @@ var utilities = (function(){
       endWidth: endWidth || 5
     }
   };
-  var Node = function(v1, v2, tail) {
+  var Tangle = function(v1, v2, tail) {
     var add = function(node) {
       if (this.tail) {
         this.tail.add(node);
@@ -91,7 +91,7 @@ var utilities = (function(){
       if (this.tail) {
         this.tail.extend(v3);
       } else {
-        this.tail = Node(Vector(v3.length * 0.2,0), v3);
+        this.tail = Tangle(Vector(v3.length * 0.2,0), v3);
       }
       return this.tail;
     };
@@ -191,7 +191,7 @@ var utilities = (function(){
   return {
     Point: Point,
     Vector: Vector,
-    Node: Node,
+    Tangle: Tangle,
     Bezier: Bezier,
     Start: Start
   }
@@ -201,7 +201,7 @@ var utilities = (function(){
   // import some utility class function thingos
   var Point = utilities.Point;
   var Vector = utilities.Vector;
-  var Node = utilities.Node;
+  var Tangle = utilities.Tangle;
   var Bezier = utilities.Bezier;
   var Start = utilities.Start;
 
@@ -239,7 +239,7 @@ var utilities = (function(){
     }
   };
   var start = Start(Point(0, 50), 0);
-  var vectors = Node(Vector(20, 0), Vector(40, 1));
+  var vectors = Tangle(Vector(20, 0), Vector(40, 1));
   vectors.extend(Vector(35,-1))
     .extend(Vector(15,0))
     .extend(Vector(25,1.4))
@@ -253,9 +253,9 @@ var utilities = (function(){
     var $right = $("#right");
     $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
     draw($canvas[0], start, vectors);
-    draw($straight[0], Start(Point(14,23), -Math.PI/2), Node(Vector(9,0), Vector(9,0)));
-    draw($left[0], Start(Point(20,23), -Math.PI/2), Node(Vector(15,0), Vector(15,-Math.PI/2)));
-    draw($right[0], Start(Point(8,23), -Math.PI/2), Node(Vector(15,0), Vector(15,Math.PI/2)));
+    draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
+    draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
+    draw($right[0], Start(Point(8,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,Math.PI/2)));
     setInterval(tick, 1000/frameRate, $canvas[0],start, vectors);
     var lastSegment;
     var lp;
@@ -278,15 +278,15 @@ var utilities = (function(){
       lastSegment = undefined;
     });
     $straight.click(function() {
-      vectors.add(Node(Vector(9,0), Vector(9,0)));
+      vectors.add(Tangle(Vector(9,0), Vector(9,0)));
       draw($canvas[0], start, vectors);
     });
     $left.click(function() {
-      vectors.add(Node(Vector(15,0), Vector(15,-Math.PI/2)));
+      vectors.add(Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
       draw($canvas[0], start, vectors);
     });
     $right.click(function() {
-      vectors.add(Node(Vector(15,0), Vector(15,Math.PI/2)));
+      vectors.add(Tangle(Vector(15,0), Vector(15,Math.PI/2)));
       draw($canvas[0], start, vectors);
     });
     $("#toggle").click(function() {
