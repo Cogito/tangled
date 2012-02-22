@@ -14,22 +14,25 @@
   };
 
   var Point = function(x, y) {
+    var translate = function(vector) {
+      return Point(
+        this.x + vector.length * Math.cos(vector.angle),
+        this.y + vector.length * Math.sin(vector.angle)
+      );
+    };
+    var vectorFrom = function(point) {
+      return Vector(this.distanceTo(point), Math.atan2(this.y - point.y, this.x - point.x));
+    };
+    var distanceTo = function (point) {
+      return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
+    };
     return {
+      translate: translate,
+      vectorFrom: vectorFrom,
+      distanceTo: distanceTo,
       x: x,
-      y: y,
-      translate: function(vector) {
-        return Point(
-          this.x + vector.length * Math.cos(vector.angle),
-          this.y + vector.length * Math.sin(vector.angle)
-        );
-      },
-      vectorFrom: function(point) {
-        return Vector(this.distanceTo(point), Math.atan2(this.y - point.y, this.x - point.x));
-      },
-      distanceTo: function (point) {
-        return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
-      }
-    }
+      y: y
+    };
   };
   var Vector = function(length, angle) {
     var rotate = function(radians) {
@@ -46,12 +49,12 @@
       context.lineTo(startPoint.p.translate(this.rotate(startPoint.h)).x, startPoint.p.translate(this.rotate(startPoint.h)).y);
     };
     return {
-      length: length, // pixels?
-      angle: angle, // radians!
       rotate: rotate,
       scaleTo: scaleTo,
       scale: scale,
-      draw: draw
+      draw: draw,
+      length: length, // pixels?
+      angle: angle // radians!
     };
   };
   var Node = function(v1, v2, tail) {
@@ -139,7 +142,7 @@
         v2.rotate(Math.PI).scale(cpRightScale)
       ),
       heading: v2.angle % (Math.PI * 2)
-    }
+    };
   };
   var drawPoints = function(context, start, v1, v2) {
     var curves = bezierPoints(start, v1, v2);
