@@ -210,7 +210,7 @@
     }
   };
   var tick = function(canvas, start, vectors) {
-    var range = 2;
+    var range = 1;
     if (ticksEnabled){
       vectors.extend(Vector(5,(Math.random() - 0.5) * range));
       draw(canvas, start, vectors);
