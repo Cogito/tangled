@@ -64,6 +64,34 @@
     };
   };
   var Node = function(v1, v2, tail) {
+    var Segment = function(v1, v2, startWidth, endWidth) {
+      var drawPoints = function(context, start) {
+        var curves = bezierPoints(start, this);
+        context.strokeStyle = "rgb(0,0,0)";
+        context.beginPath();
+        curves.bez1.draw(context);
+        context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
+        curves.bez2.drawReverse(context);
+        context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
+        //context.stroke();
+        context.fill();
+        if (drawVectors) {
+          context.strokeStyle = "rgba(255,0,0,0.5)";
+          context.beginPath();
+          this.v1.draw(context, start);
+          this.v2.draw(context, start.advance(this.v1));
+          context.stroke();
+        }
+        return curves.heading;
+      };
+      return {
+        drawPoints: drawPoints,
+        v1: v1,
+        v2: v2,
+        startWidth: startWidth || 5,
+        endWidth: endWidth || 5
+      }
+    };
     var add = function(node) {
       if (this.tail) {
         this.tail.add(node);
@@ -81,7 +109,7 @@
       return this.tail;
     };
     var lastPoint = function(start) {
-      var nextStart = start.advance(this.v1, this.v2);
+      var nextStart = start.advance(this.segment.v1, this.segment.v2);
       if (this.tail) {
         return this.tail.lastPoint(nextStart);
       } else {
@@ -89,19 +117,26 @@
       }
     };
     var draw = function(context, start) {
-      drawPoints(context, start, this.v1, this.v2);
+      this.segment.drawPoints(context, start);
       if (this.tail) {
-        this.tail.draw(context, start.advance(this.v1, this.v2));
+        this.tail.draw(context, start.advance(this.segment.v1, this.segment.v2));
+      }
+    };
+    var lastNode = function () {
+      if (this.tail) {
+        return this.tail.lastNode();
+      } else {
+        return this;
       }
     };
     return {
-      v1: v1,
-      v2: v2,
-      tail: tail, // a list of vectors! (max one to start, then two. probably no more)
       add: add,
       extend: extend,
       lastPoint: lastPoint,
-      draw: draw
+      draw: draw,
+      lastNode: lastNode,
+      segment: Segment(v1, v2, 5, 5),
+      tail: tail // a list of vectors! (max one to start, then two. probably no more)
     };
   };
   var Bezier = function(startPoint, startControlVector, endPoint, endControlVector){
@@ -122,8 +157,10 @@
       drawReverse: drawReverse
     }
   };
-  var bezierPoints = function(start, v1, v2) {
+  var bezierPoints = function(start, segment) {
     var w = 3;
+    var v1 = segment.v1;
+    var v2 = segment.v2;
     var cpInnerScale = 0.7;
     var cpOuterScale = 0.9;
     var p = start.p;
@@ -136,38 +173,19 @@
     var cpRightScale = bendLeft ? cpOuterScale : cpInnerScale;
     return {
       bez1: Bezier(
-        p.translate(v1.rotate(-Math.PI / 2).scaleTo(w)),
+        p.translate(v1.rotate(-Math.PI / 2).scaleTo(segment.startWidth)),
         v1.scale(cpLeftScale),
-        end_point.translate(v2.rotate(-Math.PI / 2).scaleTo(w)),
+        end_point.translate(v2.rotate(-Math.PI / 2).scaleTo(segment.endWidth)),
         v2.rotate(Math.PI).scale(cpLeftScale)
       ),
       bez2: Bezier(
-        p.translate(v1.rotate(Math.PI / 2).scaleTo(w)),
+        p.translate(v1.rotate(Math.PI / 2).scaleTo(segment.startWidth)),
         v1.scale(cpRightScale),
-        end_point.translate(v2.rotate(Math.PI / 2).scaleTo(w)),
+        end_point.translate(v2.rotate(Math.PI / 2).scaleTo(segment.endWidth)),
         v2.rotate(Math.PI).scale(cpRightScale)
       ),
       heading: v2.angle % (Math.PI * 2)
     };
-  };
-  var drawPoints = function(context, start, v1, v2) {
-    var curves = bezierPoints(start, v1, v2);
-    context.strokeStyle = "rgb(0,0,0)";
-    context.beginPath();
-    curves.bez1.draw(context);
-    context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
-    curves.bez2.drawReverse(context);
-    context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
-    //context.stroke();
-    context.fill();
-    if (drawVectors) {
-      context.strokeStyle = "rgba(255,0,0,0.5)";
-      context.beginPath();
-      v1.draw(context, start);
-      v2.draw(context, start.advance(v1));
-      context.stroke();
-    }
-    return curves.heading;
   };
   var draw = function(canvas, start, vectors) {
     if (canvas.getContext){
@@ -215,28 +233,25 @@
     draw($left[0], Start(Point(20,23), -Math.PI/2), Node(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Node(Vector(15,0), Vector(15,Math.PI/2)));
     setInterval(tick, 1000/24, $canvas[0],start, vectors);
-    var lastNode;
+    var lastSegment;
     var lp;
     $canvas.mousedown(function(e) {
       lp = vectors.lastPoint(start);
       vectors.extend(Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p).rotate(-lp.h));
       draw($canvas[0], start, vectors);
-      lastNode = vectors;
-      while (lastNode.tail) {
-        lastNode = lastNode.tail;
-      }
+      lastSegment = vectors.lastNode().segment;
     });
     $canvas.mousemove(function(e) {
-      if (lastNode) {
-        lastNode.v2 = Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p.translate(lastNode.v1.rotate(lp.h))).rotate(-lp.h);
-        lastNode.v1.length = lastNode.v2.length/2;
+      if (lastSegment) {
+        lastSegment.v2 = Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h);
+        lastSegment.v1.length = lastSegment.v2.length/2;
         draw($canvas[0], start, vectors);
-        //$("#angles").html((lastNode.v1.angle + (2 * Math.PI)) % (2 * Math.PI));
+        //$("#angles").html((lastSegment.v1.angle + (2 * Math.PI)) % (2 * Math.PI));
       }
     });
     $canvas.mouseup(function() {
       draw($canvas[0], start, vectors);
-      lastNode = undefined;
+      lastSegment = undefined;
     });
     $straight.click(function() {
       vectors.add(Node(Vector(9,0), Vector(9,0)));
