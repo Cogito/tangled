@@ -220,7 +220,7 @@ var utilities = (function(){
   options = options || {};
   options.followMouse = options.followMouse || false;
   var ticksEnabled = options.ticksEnabled || false;
-  var frameRate = options.frameRate || 24;
+  options.frameRate = options.frameRate || 24;
   var clearCanvas = function (canvas, context) {
     context = context || canvas.getContext?canvas.getContext('2d'):undefined;
     // Store the current transformation matrix
@@ -267,11 +267,16 @@ var utilities = (function(){
     var $straight = $("#straight");
     var $left = $("#left");
     var $right = $("#right");
+    var tickIntervalId;
+    var resetTick = function() {
+      if (tickIntervalId) clearInterval(tickIntervalId);
+      if (options.frameRate > 0) tickIntervalId = setInterval(tick, 1000/options.frameRate, $canvas, start, vectors);
+    };
     draw($canvas[0], start, vectors);
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,Math.PI/2)));
-    setInterval(tick, 1000/frameRate, $canvas, start, vectors);
+    resetTick()
     var lastSegment;
     var lp;
     $canvas.mousedown(function(e) {
@@ -322,5 +327,15 @@ var utilities = (function(){
       $('#followMouse-status')[0].textContent = options.followMouse?"ON":"OFF";
       draw($canvas[0], start, vectors);
     });
+    $('#framerate-slider').slider({
+      min: 0,
+      max: 24,
+      step: 1,
+      value: options.frameRate,
+      slide: function(event, ui) {
+        options.frameRate = ui.value;
+        resetTick();
+      }
+    });
   });
-})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: true, followMouse: true});
+})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: false, followMouse: false});

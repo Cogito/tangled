@@ -5,10 +5,15 @@
     canvas.button {
         border: 1px solid;
     }
+    #framerate-slider {
+        width: 300px;
+        margin: 10px;
+    }
   </style>
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-<div id="growth-toggle">Toggle growth! <span id="growth-status"></span></div>
+<div id="growth-toggle">Toggle growth! <span id="growth-status"></span></div><div id="framerate-slider"></div>
 <div id="wireframes-toggle"> Toggle wireframes! <span id="wireframes-status"></span></div>
 <div id="followMouse-toggle"> Toggle followMouse! <span id="followMouse-status"></span></div>
 <canvas id="straight" class="button" width="28px" height="28px"></canvas>
@@ -17,6 +22,7 @@
 <br>
 <canvas id="myCanvas" width="1000px" height="1000px"></canvas>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 <script src="bezier.js"></script>
 </body>
 </html>
