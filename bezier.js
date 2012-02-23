@@ -218,6 +218,7 @@ var utilities = (function(){
 
   // set module options up
   options = options || {};
+  options.followMouse = options.followMouse || false;
   var ticksEnabled = options.ticksEnabled || false;
   var frameRate = options.frameRate || 24;
   var clearCanvas = function (canvas, context) {
@@ -240,12 +241,17 @@ var utilities = (function(){
     }
   };
 
-
-  var tick = function(canvas, start, vectors) {
+  var tick = function($canvas, start, vectors) {
     var range = 1;
     if (ticksEnabled){
-      vectors.extend(Vector(5,(Math.random() - 0.5) * range));
-      draw(canvas, start, vectors);
+      var lp = vectors.lastPoint(start);
+      var lastSegment = vectors.lastNode().segment;
+      if (options.followMouse && $canvas.mousePos) {
+        vectors.extend($canvas.mousePos.vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h).scaleTo(5).rotate((Math.random() - 0.5) * range));
+      } else {
+        vectors.extend(Vector(5,(Math.random() - 0.5) * range));
+      }
+      draw($canvas[0], start, vectors);
     }
   };
   var start = Start(Point(0, 50), 0);
@@ -261,13 +267,11 @@ var utilities = (function(){
     var $straight = $("#straight");
     var $left = $("#left");
     var $right = $("#right");
-    $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
-    $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
     draw($canvas[0], start, vectors);
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,Math.PI/2)));
-    setInterval(tick, 1000/frameRate, $canvas[0],start, vectors);
+    setInterval(tick, 1000/frameRate, $canvas, start, vectors);
     var lastSegment;
     var lp;
     $canvas.mousedown(function(e) {
@@ -277,8 +281,9 @@ var utilities = (function(){
       lastSegment = vectors.lastNode().segment;
     });
     $canvas.mousemove(function(e) {
+      $canvas.mousePos = Point(e.pageX, e.pageY).relativeTo(this);
       if (lastSegment) {
-        lastSegment.v2 = Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h);
+        lastSegment.v2 = $canvas.mousePos.vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h);
         lastSegment.v1.length = lastSegment.v2.length/2;
         draw($canvas[0], start, vectors);
         //$("#angles").html((lastSegment.v1.angle + (2 * Math.PI)) % (2 * Math.PI));
@@ -300,14 +305,22 @@ var utilities = (function(){
       vectors.add(Tangle(Vector(15,0), Vector(15,Math.PI/2)));
       draw($canvas[0], start, vectors);
     });
+    $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
     $("#growth-toggle").click(function() {
       ticksEnabled = !ticksEnabled;
       $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
     });
+    $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
     $("#wireframes-toggle").click(function() {
       options.wireFrames = !options.wireFrames;
       $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
       draw($canvas[0], start, vectors);
     });
+    $('#followMouse-status')[0].textContent = options.followMouse?"ON":"OFF";
+    $("#followMouse-toggle").click(function() {
+      options.followMouse = !options.followMouse;
+      $('#followMouse-status')[0].textContent = options.followMouse?"ON":"OFF";
+      draw($canvas[0], start, vectors);
+    });
   });
-})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: true});
+})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: true, followMouse: true});
