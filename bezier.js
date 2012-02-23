@@ -262,7 +262,8 @@ var utilities = (function(){
     var $straight = $("#straight");
     var $left = $("#left");
     var $right = $("#right");
-    $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
+    $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
+    $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
     draw($canvas[0], start, vectors);
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
@@ -300,9 +301,14 @@ var utilities = (function(){
       vectors.add(Tangle(Vector(15,0), Vector(15,Math.PI/2)));
       draw($canvas[0], start, vectors);
     });
-    $("#toggle").click(function() {
+    $("#growth-toggle").click(function() {
       ticksEnabled = !ticksEnabled;
-      $('#toggleStatus')[0].textContent = ticksEnabled?"ON":"OFF";
+      $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
+    });
+    $("#wireframes-toggle").click(function() {
+      options.wireFrames = !options.wireFrames;
+      $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
+      draw($canvas[0], start, vectors);
     });
   });
 })(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: true});
