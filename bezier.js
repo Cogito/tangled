@@ -214,7 +214,6 @@ var utilities = (function(){
   var Point = utilities.Point;
   var Vector = utilities.Vector;
   var Tangle = utilities.Tangle;
-  var Bezier = utilities.Bezier;
   var Start = utilities.Start;
 
   // set module options up
