@@ -337,5 +337,27 @@ var utilities = (function(){
         resetTick();
       }
     });
+    $(document).keydown(function (e) {
+      var keyCode = e.keyCode || e.which,
+        arrow = {left: 37, up: 38, right: 39, down: 40 };
+
+      switch (keyCode) {
+        case arrow.left:
+          vectors.add(Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
+          draw($canvas[0], start, vectors);
+          break;
+        case arrow.up:
+          vectors.add(Tangle(Vector(9,0), Vector(9,0)));
+          draw($canvas[0], start, vectors);
+          break;
+        case arrow.right:
+          vectors.add(Tangle(Vector(15,0), Vector(15,Math.PI/2)));
+          draw($canvas[0], start, vectors);
+          break;
+        case arrow.down:
+          //..
+          break;
+      }
+    });
   });
 })(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: false, followMouse: false});
