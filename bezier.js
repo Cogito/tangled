@@ -85,6 +85,9 @@ var utilities = (function(){
       } else {
         this.tail = node;
       }
+      // Every time we extend the tangle, make it a little thicker
+      this.segment.endWidth = this.tail.segment.startWidth;
+      this.segment.startWidth = calculateNewThickness(this.segment.startWidth);
       return this.tail;
     };
     var extend = function(v3) {
