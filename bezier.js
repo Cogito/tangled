@@ -231,7 +231,7 @@ var utilities = (function(){
   // set module options up
   options = options || {};
   options.followMouse = options.followMouse || false;
-  var ticksEnabled = options.ticksEnabled || false;
+  options.ticksEnabled = options.ticksEnabled || false;
   options.frameRate = options.frameRate || 24;
   var clearCanvas = function (canvas, context) {
     context = context || canvas.getContext?canvas.getContext('2d'):undefined;
@@ -254,7 +254,7 @@ var utilities = (function(){
   },
   tick = function($canvas, start, vectors) {
     var range = 1;
-    if (ticksEnabled){
+    if (options.ticksEnabled){
       var lp = vectors.lastPoint(start);
       var lastSegment = vectors.lastNode().segment;
       if (options.followMouse && $canvas.mousePos) {
@@ -321,10 +321,10 @@ var utilities = (function(){
       vectors.add(Tangle(Vector(15,0), Vector(15,Math.PI/2)));
       draw($canvas[0], start, vectors);
     });
-    $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
+    $('#growth-status')[0].textContent = options.ticksEnabled?"ON":"OFF";
     $("#growth-toggle").click(function() {
-      ticksEnabled = !ticksEnabled;
-      $('#growth-status')[0].textContent = ticksEnabled?"ON":"OFF";
+      options.ticksEnabled = !options.ticksEnabled;
+      $('#growth-status')[0].textContent = options.ticksEnabled?"ON":"OFF";
     });
     $('#wireframes-status')[0].textContent = options.wireFrames?"ON":"OFF";
     $("#wireframes-toggle").click(function() {
