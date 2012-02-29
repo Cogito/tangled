@@ -70,8 +70,21 @@ var utilities = (function(){
       }
       return curves.heading;
     };
+    var calculateNewThickness = function(width) {
+      var maxWidth = 5;
+      if (width < 0) width = 0;
+      if (width > maxWidth) width = maxWidth;
+      var tmp = (width/maxWidth - 0.5) * Math.PI; // value in the range [-PI/2, PI/2]
+      tmp = Math.atan(Math.tan(tmp) + 0.07); // still in the range [-PI/2, PI/2], but slightly more positive
+      tmp = (tmp / Math.PI + 0.5) * maxWidth; // now in the range [0, maxWidth]
+      return tmp;
+    };
     return {
       draw: draw,
+      thicken: function(endWidth) {
+        this.endWidth = endWidth;
+        this.startWidth = calculateNewThickness(this.startWidth);
+      },
       v1: v1,
       v2: v2,
       startWidth: startWidth || 5,
@@ -86,8 +99,7 @@ var utilities = (function(){
         this.tail = node;
       }
       // Every time we extend the tangle, make it a little thicker
-      this.segment.endWidth = this.tail.segment.startWidth;
-      this.segment.startWidth = calculateNewThickness(this.segment.startWidth);
+      this.segment.thicken(this.tail.segment.startWidth);
       return this.tail;
     };
     var extend = function(v3) {
@@ -97,8 +109,7 @@ var utilities = (function(){
         this.tail = Tangle(Vector(v3.length * 0.2,0), v3);
       }
       // Every time we extend the tangle, make it a little thicker
-      this.segment.endWidth = this.tail.segment.startWidth;
-      this.segment.startWidth = calculateNewThickness(this.segment.startWidth);
+      this.segment.thicken(this.tail.segment.startWidth);
       return this.tail;
     };
     var lastPoint = function(start) {
@@ -121,15 +132,6 @@ var utilities = (function(){
       } else {
         return this;
       }
-    };
-    var calculateNewThickness = function(width) {
-      var maxWidth = 5;
-      if (width < 0) width = 0;
-      if (width > maxWidth) width = maxWidth;
-      var tmp = (width/maxWidth - 0.5) * Math.PI; // value in the range [-PI/2, PI/2]
-      tmp = Math.atan(Math.tan(tmp) + 0.07); // still in the range [-PI/2, PI/2], but slightly more positive
-      tmp = (tmp / Math.PI + 0.5) * maxWidth; // now in the range [0, maxWidth]
-      return tmp;
     };
     return {
       add: add,
