@@ -226,47 +226,47 @@ var utilities = (function(){
   var Point = utilities.Point,
     Vector = utilities.Vector,
     Tangle = utilities.Tangle,
-    Start = utilities.Start;
+    Start = utilities.Start,
+    clearCanvas = function (canvas, context) {
+      context = context || canvas.getContext?canvas.getContext('2d'):undefined;
+      // Store the current transformation matrix
+      context.save();
+
+      // Use the identity matrix while clearing the canvas
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Restore the transform
+      context.restore();
+    },
+    draw = function(canvas, start, vectors) {
+      if (canvas.getContext){
+        var context = canvas.getContext('2d');
+        clearCanvas(canvas, context);
+        vectors.draw(context, start, {drawVectors: options.drawVectors, wireFrames: options.wireFrames});
+      }
+    },
+    tick = function($canvas, start, vectors) {
+      var range = 1,
+        lp = vectors.lastPoint(start),
+        lastSegment = vectors.lastNode().segment;
+      if (options.ticksEnabled){
+        if (options.followMouse && $canvas.mousePos) {
+          vectors.extend($canvas.mousePos.vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h).scaleTo(5).rotate((Math.random() - 0.5) * range));
+        } else {
+          vectors.extend(Vector(5,(Math.random() - 0.5) * range));
+        }
+        draw($canvas[0], start, vectors);
+      }
+    },
+    start = Start(Point(0, 50), 0),
+    vectors = Tangle(Vector(20, 0), Vector(40, 1));
 
   // set module options up
   options = options || {};
   options.followMouse = options.followMouse || false;
   options.ticksEnabled = options.ticksEnabled || false;
   options.frameRate = options.frameRate || 24;
-  var clearCanvas = function (canvas, context) {
-    context = context || canvas.getContext?canvas.getContext('2d'):undefined;
-    // Store the current transformation matrix
-    context.save();
-
-    // Use the identity matrix while clearing the canvas
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Restore the transform
-    context.restore();
-  },
-  draw = function(canvas, start, vectors) {
-    if (canvas.getContext){
-      var context = canvas.getContext('2d');
-      clearCanvas(canvas, context);
-      vectors.draw(context, start, {drawVectors: options.drawVectors, wireFrames: options.wireFrames});
-    }
-  },
-  tick = function($canvas, start, vectors) {
-    var range = 1;
-    if (options.ticksEnabled){
-      var lp = vectors.lastPoint(start);
-      var lastSegment = vectors.lastNode().segment;
-      if (options.followMouse && $canvas.mousePos) {
-        vectors.extend($canvas.mousePos.vectorFrom(lp.p.translate(lastSegment.v1.rotate(lp.h))).rotate(-lp.h).scaleTo(5).rotate((Math.random() - 0.5) * range));
-      } else {
-        vectors.extend(Vector(5,(Math.random() - 0.5) * range));
-      }
-      draw($canvas[0], start, vectors);
-    }
-  },
-  start = Start(Point(0, 50), 0),
-  vectors = Tangle(Vector(20, 0), Vector(40, 1));
   // initial tangle
   vectors.extend(Vector(35,-1))
     .extend(Vector(15,0))
