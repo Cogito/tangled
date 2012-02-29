@@ -281,7 +281,7 @@ var utilities = (function(){
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,Math.PI/2)));
-    resetTick()
+    resetTick();
     var lastSegment;
     var lp;
     $canvas.mousedown(function(e) {
