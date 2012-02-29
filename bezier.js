@@ -1,194 +1,201 @@
 var utilities = (function(){
   var Point = function(x, y) {
-    var translate = function(vector) {
-      return Point(
-        this.x + vector.length * Math.cos(vector.angle),
-        this.y + vector.length * Math.sin(vector.angle)
-      );
-    };
-    var vectorFrom = function(point) {
-      return Vector(this.distanceTo(point), Math.atan2(this.y - point.y, this.x - point.x));
-    };
-    var distanceTo = function (point) {
-      return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
-    };
-    var relativeTo = function (element) {
-      var offset = $(element).offset();
-      return Point(this.x - offset.left, this.y - offset.top);
-    };
-    return {
-      translate: translate,
-      vectorFrom: vectorFrom,
-      distanceTo: distanceTo,
-      relativeTo: relativeTo,
-      x: x,
-      y: y
-    };
-  };
-  var Vector = function(length, angle) {
-    var rotate = function(radians) {
-      return Vector(this.length, this.angle + radians); // TODO: might try to keep new angle in the range [-PI:PI] later
-    };
-    var scaleTo = function(len) {
-      return Vector(len, this.angle);
-    };
-    var scale = function(percentage) {
-      return Vector(this.length*percentage, this.angle);
-    };
-    var draw = function(context, startPoint) {
-      context.moveTo(startPoint.p.x, startPoint.p.y);
-      context.lineTo(startPoint.p.translate(this.rotate(startPoint.h)).x, startPoint.p.translate(this.rotate(startPoint.h)).y);
-    };
-    return {
-      rotate: rotate,
-      scaleTo: scaleTo,
-      scale: scale,
-      draw: draw,
-      length: length, // pixels?
-      angle: angle // radians!
-    };
-  };
-  var Segment = function(v1, v2, startWidth, endWidth) {
-    var draw = function(context, start, options) {
-      options = options || {};
-      var drawVectors = options.drawVectors || false;
-      var wireFrames = options.wireFrames || false;
-      var curves = bezierPoints(start, this);
-      context.strokeStyle = "rgb(0,0,0)";
-      context.beginPath();
-      curves.bez1.draw(context);
-      context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
-      curves.bez2.drawReverse(context);
-      context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
-      wireFrames ? context.stroke() : context.fill();
-      if (drawVectors) {
-        context.strokeStyle = "rgba(255,0,0,0.5)";
-        context.beginPath();
-        this.v1.draw(context, start);
-        this.v2.draw(context, start.advance(this.v1));
-        context.stroke();
+      var translate = function(vector) {
+          return Point(
+            this.x + vector.length * Math.cos(vector.angle),
+            this.y + vector.length * Math.sin(vector.angle)
+          );
+        },
+        vectorFrom = function(point) {
+          return Vector(this.distanceTo(point), Math.atan2(this.y - point.y, this.x - point.x));
+        },
+        distanceTo = function (point) {
+          return Math.sqrt((this.x - point.x)*(this.x - point.x) + (this.y - point.y)*(this.y - point.y));
+        },
+        relativeTo = function (element) {
+          var offset = $(element).offset();
+          return Point(this.x - offset.left, this.y - offset.top);
+        };
+      return {
+        translate: translate,
+        vectorFrom: vectorFrom,
+        distanceTo: distanceTo,
+        relativeTo: relativeTo,
+        x: x,
+        y: y
+      };
+    },
+    Vector = function(length, angle) {
+      var rotate = function(radians) {
+          return Vector(this.length, this.angle + radians); // TODO: might try to keep new angle in the range [-PI:PI] later
+        },
+        scaleTo = function(len) {
+          return Vector(len, this.angle);
+        },
+        scale = function(percentage) {
+          return Vector(this.length*percentage, this.angle);
+        },
+        draw = function(context, startPoint) {
+          context.moveTo(startPoint.p.x, startPoint.p.y);
+          context.lineTo(startPoint.p.translate(this.rotate(startPoint.h)).x, startPoint.p.translate(this.rotate(startPoint.h)).y);
+        };
+      return {
+        rotate: rotate,
+        scaleTo: scaleTo,
+        scale: scale,
+        draw: draw,
+        length: length, // pixels?
+        angle: angle // radians!
+      };
+    },
+    Segment = function(v1, v2, startWidth, endWidth) {
+      var draw = function(context, start, options) {
+          options = options || {};
+          var drawVectors = options.drawVectors || false,
+            wireFrames = options.wireFrames || false,
+            curves = bezierPoints(start, this);
+          context.strokeStyle = "rgb(0,0,0)";
+          context.beginPath();
+          curves.bez1.draw(context);
+          context.lineTo(curves.bez2.end.x,curves.bez2.end.y);
+          curves.bez2.drawReverse(context);
+          context.lineTo(curves.bez1.start.x,curves.bez1.start.y);
+          wireFrames ? context.stroke() : context.fill();
+          if (drawVectors) {
+            context.strokeStyle = "rgba(255,0,0,0.5)";
+            context.beginPath();
+            this.v1.draw(context, start);
+            this.v2.draw(context, start.advance(this.v1));
+            context.stroke();
+          }
+          return curves.heading;
+        },
+        calculateNewThickness = function(width) {
+          var maxWidth = 5,
+            tmp;
+          if (width < 0) {
+            width = 0;
+          }
+          if (width > maxWidth) {
+            width = maxWidth;
+          }
+          tmp = (width/maxWidth - 0.5) * Math.PI; // value in the range [-PI/2, PI/2]
+          tmp = Math.atan(Math.tan(tmp) + 0.07); // still in the range [-PI/2, PI/2], but slightly more positive
+          tmp = (tmp / Math.PI + 0.5) * maxWidth; // now in the range [0, maxWidth]
+          return tmp;
+        };
+      return {
+        draw: draw,
+        thicken: function(endWidth) {
+          this.endWidth = endWidth;
+          this.startWidth = calculateNewThickness(this.startWidth);
+        },
+        v1: v1,
+        v2: v2,
+        startWidth: startWidth || 5,
+        endWidth: endWidth || 5
       }
-      return curves.heading;
-    };
-    var calculateNewThickness = function(width) {
-      var maxWidth = 5;
-      if (width < 0) width = 0;
-      if (width > maxWidth) width = maxWidth;
-      var tmp = (width/maxWidth - 0.5) * Math.PI; // value in the range [-PI/2, PI/2]
-      tmp = Math.atan(Math.tan(tmp) + 0.07); // still in the range [-PI/2, PI/2], but slightly more positive
-      tmp = (tmp / Math.PI + 0.5) * maxWidth; // now in the range [0, maxWidth]
-      return tmp;
-    };
-    return {
-      draw: draw,
-      thicken: function(endWidth) {
-        this.endWidth = endWidth;
-        this.startWidth = calculateNewThickness(this.startWidth);
-      },
-      v1: v1,
-      v2: v2,
-      startWidth: startWidth || 5,
-      endWidth: endWidth || 5
-    }
-  };
-  var Tangle = function(v1, v2, tail) {
-    var add = function(node) {
-      if (this.tail) {
-        this.tail.add(node);
-      } else {
-        this.tail = node;
+    },
+    Tangle = function(v1, v2, tail) {
+      var add = function(node) {
+          if (this.tail) {
+            this.tail.add(node);
+          } else {
+            this.tail = node;
+          }
+          // Every time we extend the tangle, make it a little thicker
+          this.segment.thicken(this.tail.segment.startWidth);
+          return this.tail;
+        },
+        extend = function(v3) {
+          if (this.tail) {
+            this.tail.extend(v3);
+          } else {
+            this.tail = Tangle(Vector(v3.length * 0.2,0), v3);
+          }
+          // Every time we extend the tangle, make it a little thicker
+          this.segment.thicken(this.tail.segment.startWidth);
+          return this.tail;
+        },
+        lastPoint = function(start) {
+          var nextStart = start.advance(this.segment.v1, this.segment.v2);
+          if (this.tail) {
+            return this.tail.lastPoint(nextStart);
+          } else {
+            return nextStart;
+          }
+        },
+        draw = function(context, start, options) {
+          this.segment.draw(context, start,options);
+          if (this.tail) {
+            this.tail.draw(context, start.advance(this.segment.v1, this.segment.v2), options);
+          }
+        },
+        lastNode = function () {
+          if (this.tail) {
+            return this.tail.lastNode();
+          } else {
+            return this;
+          }
+        };
+      return  {
+        add: add,
+        extend: extend,
+        lastPoint: lastPoint,
+        draw: draw,
+        lastNode: lastNode,
+        segment: Segment(v1, v2, 1, 0.1),
+        tail: tail // a list of vectors! (max one to start, then two. probably no more)
+      };
+    },
+    Bezier = function(startPoint, startControlVector, endPoint, endControlVector){
+      var draw = function(context) {
+          context.moveTo(this.start.x, this.start.y);
+          context.bezierCurveTo(this.startCP.x, this.startCP.y, this.endCP.x, this.endCP.y, this.end.x, this.end.y);
+        },
+        drawReverse = function(context) {
+          context.moveTo(this.end.x, this.end.y);
+          context.bezierCurveTo(this.endCP.x, this.endCP.y, this.startCP.x, this.startCP.y, this.start.x, this.start.y);
+        };
+      return {
+        start: startPoint,
+        startCP: startPoint.translate(startControlVector),
+        end: endPoint,
+        endCP: endPoint.translate(endControlVector),
+        draw: draw,
+        drawReverse: drawReverse
       }
-      // Every time we extend the tangle, make it a little thicker
-      this.segment.thicken(this.tail.segment.startWidth);
-      return this.tail;
-    };
-    var extend = function(v3) {
-      if (this.tail) {
-        this.tail.extend(v3);
-      } else {
-        this.tail = Tangle(Vector(v3.length * 0.2,0), v3);
+    },
+    Start = function(p, h) {
+      var advance = function(v1, v2) {
+        v2 = v2 || Vector(0,0);
+        return Start(
+          this.p.translate(v1.rotate(this.h)).translate(v2.rotate(v1.angle+this.h)),
+          (this.h + v1.angle + v2.angle) % (2 * Math.PI)
+        );
+      };
+      return {
+        p: p || Point(0,0),
+        h: h || 0,
+        advance: advance
       }
-      // Every time we extend the tangle, make it a little thicker
-      this.segment.thicken(this.tail.segment.startWidth);
-      return this.tail;
-    };
-    var lastPoint = function(start) {
-      var nextStart = start.advance(this.segment.v1, this.segment.v2);
-      if (this.tail) {
-        return this.tail.lastPoint(nextStart);
-      } else {
-        return nextStart;
-      }
-    };
-    var draw = function(context, start, options) {
-      this.segment.draw(context, start,options);
-      if (this.tail) {
-        this.tail.draw(context, start.advance(this.segment.v1, this.segment.v2), options);
-      }
-    };
-    var lastNode = function () {
-      if (this.tail) {
-        return this.tail.lastNode();
-      } else {
-        return this;
-      }
-    };
-    return {
-      add: add,
-      extend: extend,
-      lastPoint: lastPoint,
-      draw: draw,
-      lastNode: lastNode,
-      segment: Segment(v1, v2, 1, 0.1),
-      tail: tail // a list of vectors! (max one to start, then two. probably no more)
-    };
-  };
-  var Bezier = function(startPoint, startControlVector, endPoint, endControlVector){
-    var draw = function(context) {
-      context.moveTo(this.start.x, this.start.y);
-      context.bezierCurveTo(this.startCP.x, this.startCP.y, this.endCP.x, this.endCP.y, this.end.x, this.end.y);
-    };
-    var drawReverse = function(context) {
-      context.moveTo(this.end.x, this.end.y);
-      context.bezierCurveTo(this.endCP.x, this.endCP.y, this.startCP.x, this.startCP.y, this.start.x, this.start.y);
-    };
-    return {
-      start: startPoint,
-      startCP: startPoint.translate(startControlVector),
-      end: endPoint,
-      endCP: endPoint.translate(endControlVector),
-      draw: draw,
-      drawReverse: drawReverse
-    }
-  };
-  var Start = function(p, h) {
-    var advance = function(v1, v2) {
-      v2 = v2 || Vector(0,0);
-      return Start(
-        this.p.translate(v1.rotate(this.h)).translate(v2.rotate(v1.angle+this.h)),
-        (this.h + v1.angle + v2.angle) % (2 * Math.PI)
-      );
-    };
-    return {
-      p: p || Point(0,0),
-      h: h || 0,
-      advance: advance
-    }
-  };
-  var bezierPoints = function(start, segment) {
-    var w = 3;
-    var v1 = segment.v1;
-    var v2 = segment.v2;
-    var cpInnerScale = 0.7;
-    var cpOuterScale = 0.9;
-    var p = start.p;
-    var heading = start.h;
-    var end_point = start.advance(v1, v2).p;
+    },
+    bezierPoints = function(start, segment) {
+    var v1 = segment.v1,
+      v2 = segment.v2,
+      cpInnerScale = 0.7,
+      cpOuterScale = 0.9,
+      p = start.p,
+      heading = start.h,
+      end_point = start.advance(v1, v2).p,
+      bendLeft,
+      cpLeftScale,
+      cpRightScale;
     v1 = v1.rotate(heading);
     v2 = v2.rotate(v1.angle);
-    var bendLeft = (v1.angle - Math.PI < v2.angle && v2.angle < v1.angle) || (v1.angle + Math.PI < v2.angle);
-    var cpLeftScale =  bendLeft ? cpInnerScale : cpOuterScale;
-    var cpRightScale = bendLeft ? cpOuterScale : cpInnerScale;
+    bendLeft = (v1.angle - Math.PI < v2.angle && v2.angle < v1.angle) || (v1.angle + Math.PI < v2.angle);
+    cpLeftScale =  bendLeft ? cpInnerScale : cpOuterScale;
+    cpRightScale = bendLeft ? cpOuterScale : cpInnerScale;
     return {
       bez1: Bezier(
         p.translate(v1.rotate(-Math.PI / 2).scaleTo(segment.startWidth)),
@@ -216,10 +223,10 @@ var utilities = (function(){
 
 (function($, utilities, options) {
   // import some utility class function thingos
-  var Point = utilities.Point;
-  var Vector = utilities.Vector;
-  var Tangle = utilities.Tangle;
-  var Start = utilities.Start;
+  var Point = utilities.Point,
+    Vector = utilities.Vector,
+    Tangle = utilities.Tangle,
+    Start = utilities.Start;
 
   // set module options up
   options = options || {};
@@ -237,16 +244,15 @@ var utilities = (function(){
 
     // Restore the transform
     context.restore();
-  };
-  var draw = function(canvas, start, vectors) {
+  },
+  draw = function(canvas, start, vectors) {
     if (canvas.getContext){
       var context = canvas.getContext('2d');
       clearCanvas(canvas, context);
       vectors.draw(context, start, {drawVectors: options.drawVectors, wireFrames: options.wireFrames});
     }
-  };
-
-  var tick = function($canvas, start, vectors) {
+  },
+  tick = function($canvas, start, vectors) {
     var range = 1;
     if (ticksEnabled){
       var lp = vectors.lastPoint(start);
@@ -258,9 +264,9 @@ var utilities = (function(){
       }
       draw($canvas[0], start, vectors);
     }
-  };
-  var start = Start(Point(0, 50), 0);
-  var vectors = Tangle(Vector(20, 0), Vector(40, 1));
+  },
+  start = Start(Point(0, 50), 0),
+  vectors = Tangle(Vector(20, 0), Vector(40, 1));
   vectors.extend(Vector(35,-1))
     .extend(Vector(15,0))
     .extend(Vector(25,1.4))
@@ -268,22 +274,22 @@ var utilities = (function(){
     .extend(Vector(35,-.7))
     .extend(Vector(55,Math.PI/2));
   $(function() {
-    var $canvas = $("#myCanvas");
-    var $straight = $("#straight");
-    var $left = $("#left");
-    var $right = $("#right");
-    var tickIntervalId;
-    var resetTick = function() {
-      if (tickIntervalId) clearInterval(tickIntervalId);
-      if (options.frameRate > 0) tickIntervalId = setInterval(tick, 1000/options.frameRate, $canvas, start, vectors);
-    };
+    var $canvas = $("#myCanvas"),
+      $straight = $("#straight"),
+      $left = $("#left"),
+      $right = $("#right"),
+      tickIntervalId,
+      resetTick = function() {
+        if (tickIntervalId) clearInterval(tickIntervalId);
+        if (options.frameRate > 0) tickIntervalId = setInterval(tick, 1000/options.frameRate, $canvas, start, vectors);
+      },
+      lastSegment,
+      lp;
     draw($canvas[0], start, vectors);
     draw($straight[0], Start(Point(14,23), -Math.PI/2), Tangle(Vector(9,0), Vector(9,0)));
     draw($left[0], Start(Point(20,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,-Math.PI/2)));
     draw($right[0], Start(Point(8,23), -Math.PI/2), Tangle(Vector(15,0), Vector(15,Math.PI/2)));
     resetTick();
-    var lastSegment;
-    var lp;
     $canvas.mousedown(function(e) {
       lp = vectors.lastPoint(start);
       vectors.extend(Point(e.pageX, e.pageY).relativeTo(this).vectorFrom(lp.p).rotate(-lp.h));
