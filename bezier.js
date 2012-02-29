@@ -267,12 +267,14 @@ var utilities = (function(){
   },
   start = Start(Point(0, 50), 0),
   vectors = Tangle(Vector(20, 0), Vector(40, 1));
+  // initial tangle
   vectors.extend(Vector(35,-1))
     .extend(Vector(15,0))
     .extend(Vector(25,1.4))
     .extend(Vector(15,-.3))
     .extend(Vector(35,-.7))
     .extend(Vector(55,Math.PI/2));
+  // on document ready
   $(function() {
     var $canvas = $("#myCanvas"),
       $straight = $("#straight"),
