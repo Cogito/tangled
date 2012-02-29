@@ -94,7 +94,7 @@ var utilities = (function(){
         v2: v2,
         startWidth: startWidth || 5,
         endWidth: endWidth || 5
-      }
+      };
     },
     Tangle = function(v1, v2, tail) {
       var add = function(node) {
@@ -164,7 +164,7 @@ var utilities = (function(){
         endCP: endPoint.translate(endControlVector),
         draw: draw,
         drawReverse: drawReverse
-      }
+      };
     },
     Start = function(p, h) {
       var advance = function(v1, v2) {
@@ -178,7 +178,7 @@ var utilities = (function(){
         p: p || Point(0,0),
         h: h || 0,
         advance: advance
-      }
+      };
     },
     bezierPoints = function(start, segment) {
     var v1 = segment.v1,
@@ -218,8 +218,8 @@ var utilities = (function(){
     Tangle: Tangle,
     Bezier: Bezier,
     Start: Start
-  }
-})();
+  };
+}());
 
 (function($, utilities, options) {
   // import some utility class function thingos
@@ -280,8 +280,12 @@ var utilities = (function(){
       $right = $("#right"),
       tickIntervalId,
       resetTick = function() {
-        if (tickIntervalId) clearInterval(tickIntervalId);
-        if (options.frameRate > 0) tickIntervalId = setInterval(tick, 1000/options.frameRate, $canvas, start, vectors);
+        if (tickIntervalId) {
+          clearInterval(tickIntervalId);
+        }
+        if (options.frameRate > 0) {
+          tickIntervalId = setInterval(tick, 1000/options.frameRate, $canvas, start, vectors);
+        }
       },
       lastSegment,
       lp;
@@ -371,4 +375,4 @@ var utilities = (function(){
       }
     });
   });
-})(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: false, followMouse: false});
+}(jQuery, utilities, {drawVectors: false, ticksEnabled: false, frameRate: 5, wireFrames: false, followMouse: false}));
