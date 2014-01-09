@@ -20,9 +20,9 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
       for i in [1..10]
         @tangle.addChain [new Source(
           this,
-          2 * @border + (@width - 4 * @border) * Math.random(),
-          2 * @border + (@height - 4 * @border) * Math.random(),
-          10
+          4 * @border + (@width - 8 * @border) * Math.random(),
+          4 * @border + (@height - 8 * @border) * Math.random(),
+          7
         )]
 
       @drawing = new Drawing(this)
@@ -40,7 +40,7 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
       @fps_now = new Date()
       @fps = 1000 / (@fps_now - @fps_last)
       @fps_last = @fps_now
-      document.getElementById('fps').innerHTML = "(" + @fps_now + "-" + @fps_last + ") " + Math.round(@fps) + " fps";
+      document.getElementById('fps').innerHTML = @tangle.nodes.length + " nodes; " + Math.round(@fps) + " fps";
       if not @paused then window.requestAnimationFrame(@mainLoop)
       if !@startTime
         @startTime = time
@@ -73,7 +73,7 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
           if @mouseDragging and distToActive >= @tangle.minGrowDistance
             distance = @tangle.activeNode.weight + @tangle.minGrowDistance + Math.random() * (@tangle.maxGrowDistance - @tangle.minGrowDistance)
             p = utils.offsetFrom(@tangle.activeNode, distance, Math.atan2(hit.y - @tangle.activeNode.y, hit.x - @tangle.activeNode.x))
-            newNode = @tangle.grow(p)
+            newNode = @tangle.grow(p, @tangle.activeNode)
             @tangle.activeNode = newNode
 
       @tangle.killDyingNodes()

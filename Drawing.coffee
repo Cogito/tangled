@@ -16,7 +16,7 @@ define ["utils"], (utils) ->
       @ctx.restore()
 
     drawTangle: (tangle) ->
-      @ctx.strokeStyle = "rgba(255,0,255,0.15)"
+      @ctx.strokeStyle = "rgba(255,100,255,0.15)"
       @ctx.fillStyle = tangle.innerFillStyle
       @ctx.beginPath()
       for node in tangle.nodes
