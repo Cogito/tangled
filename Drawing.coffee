@@ -68,4 +68,3 @@ define ["utils"], (utils) ->
           @ctx.lineTo(p.x, p.y)
         @ctx.lineTo(startp.x, startp.y)
       @drawConnection(node, conn?.node) for id, conn of node.connections
-
