@@ -19,10 +19,16 @@ define ["utils"], (utils) ->
       @ctx.strokeStyle = "rgba(255,100,255,0.15)"
       @ctx.fillStyle = tangle.innerFillStyle
       @ctx.beginPath()
-      for node in tangle.nodes
+      for node in tangle.nodes when not node?.isDying
         @drawNode(node)
       @ctx.fill()
       @ctx.stroke()
+      for node in tangle.nodes when node?.isDying
+        @ctx.fillStyle = "rgba(255,255,255,"+node.weight / tangle.maxNodeWeight+")"
+        @ctx.beginPath()
+        @drawNode(node)
+        @ctx.fill()
+        @ctx.stroke()
 
     drawConnection: (node1, node2) ->
       if (!node1 or !node2 or node1 is node2 or node2.weight > node1.weight)
