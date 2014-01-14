@@ -47,7 +47,6 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       return close
 
     grow: (p, parent) ->
-      node = new Node(this, p.x, p.y, 1)
       # Don't connect to nodes that are connected to each other, because it sucks
       closeNodes = @findNodesNear(p, @maxGrowDistance)
       ###found = {}
@@ -73,13 +72,27 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       for disconnectedSet in disconnectedSets
         nodesToConnectTo.push utils.findClosestInSet(node, disconnectedSet)###
 
-      closeNodes = closeNodes.filter (el) -> el isnt parent
+      closeNodes = closeNodes.filter (el) ->
+        utils.vertexAngle(p, parent, el) > 3/4 * Math.PI
 
-      closest = utils.findClosestInSet(node, closeNodes)
+      closeNodes = closeNodes.sort (a, b) ->
+        utils.vertexAngle(p, parent, a) - utils.vertexAngle(p, parent, b)
 
-      @addNode(node, closest, parent)
-      node.isDying = true if not @game.inBounds(node)
-      return node
+      closest = closeNodes[0]
+
+      if closest and utils.distanceBetween(parent, closest) < @maxGrowDistance
+        @addConnection(parent, closest)
+        return closest
+      else
+        node = new Node(this, p.x, p.y, 1)
+        @addNode(node, closest, parent)
+
+        node.isDying = true if not @game.inBounds(node)
+
+        if closest
+          return closest
+        else
+          return node
 
     growRandomly: (n = 1, chance = 1) ->
       for node in @nodes
