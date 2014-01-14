@@ -65,13 +65,13 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
         if not @tangle.activeNode
           closest = utils.findClosestInSet(hit, @tangle.findNodesNear(hit))
           if closest
-            distToClosest = utils.distanceBetween(hit, closest) - closest.weight
+            distToClosest = utils.distanceBetween(hit, closest) - closest.size()
             if distToClosest < @tangle.maxGrowDistance
               @tangle.activeNode = closest
         else
-          distToActive = utils.distanceBetween(hit, @tangle.activeNode) - @tangle.activeNode.weight
+          distToActive = utils.distanceBetween(hit, @tangle.activeNode) - @tangle.activeNode.size()
           if @mouseDragging and distToActive >= @tangle.minGrowDistance
-            distance = @tangle.activeNode.weight + @tangle.minGrowDistance + Math.random() * (@tangle.maxGrowDistance - @tangle.minGrowDistance)
+            distance = @tangle.activeNode.size() + @tangle.minGrowDistance + Math.random() * (@tangle.maxGrowDistance - @tangle.minGrowDistance)
             p = utils.offsetFrom(@tangle.activeNode, distance, Math.atan2(hit.y - @tangle.activeNode.y, hit.x - @tangle.activeNode.x))
             newNode = @tangle.grow(p, @tangle.activeNode)
             @tangle.activeNode = newNode

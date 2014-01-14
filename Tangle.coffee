@@ -9,7 +9,7 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       #@dyingNodes = []
       @minGrowDistance = 11
       @maxGrowDistance = 12
-      @maxNodeWeight = 7
+      @maxNodeWeight = 5
 
       @quadtree = new QuadTree 0, 0, @game.width, @game.height
       @graph = new Graph
@@ -41,7 +41,7 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       close = []
       quadClose = @quadtree.getObjects point.x - radius * 2, point.y - radius * 2, radius * 4, radius * 4
       for node in quadClose
-        curr = utils.distanceBetween(node, point) - node.weight
+        curr = utils.distanceBetween(node, point) - node.size()
         if curr < radius
           close.push(node)
       return close
@@ -85,7 +85,7 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       for node in @nodes
         # Grow like crazy!
         if node?.numConnections() == n and Math.random() <= chance and node isnt @activeNode and not node.isDying
-          p = utils.offsetFrom(node, node.weight + @maxGrowDistance - 1, utils.middleAngle(node.sortedConns(), 0, Math.random() < 0.5) + Math.random() - 0.5)
+          p = utils.offsetFrom(node, node.size() + @maxGrowDistance - 1, utils.middleAngle(node.sortedConns(), 0, Math.random() < 0.5) + Math.random() - 0.5)
           @grow(p, node)
 
     killNode: (node) ->

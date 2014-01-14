@@ -2,7 +2,6 @@ define ["utils"], (utils) ->
   class Node
     constructor: (@tangle, @x, @y, @weight, connections...) ->
       @id = utils.uniqid.get()
-      @size = 0
       @setWeight(@weight)
       @connections = {}
       @transfers = []
@@ -18,10 +17,12 @@ define ["utils"], (utils) ->
       @setWeight(@weight - w)
       n.setWeight(n.weight + w)
 
+    size: ->
+      @weight * (0.5 * @numConnections() + 1)
+
     setWeight: (weight) ->
       if weight < 0 then weight = 0
       @weight = if weight > @tangle.maxNodeWeight then @tangle.maxNodeWeight else weight
-      if @weight > @size then @size = @weight
 
     prepareTransfers: ->
       self = this

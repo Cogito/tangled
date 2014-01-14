@@ -30,11 +30,11 @@ define ["utils"], (utils) ->
       deviationAngle = 0.5
       deviationRadius = 1
       leftLine = utils.leftOuterLineBetween(node1, node2)
-      leftCP1 = utils.offsetFrom(node1, node1.weight + deviationRadius, leftLine.startAngle - deviationAngle)
-      leftCP2 = utils.offsetFrom(node2, node2.weight + deviationRadius, leftLine.endAngle + deviationAngle)
+      leftCP1 = utils.offsetFrom(node1, node1.size() + deviationRadius, leftLine.startAngle - deviationAngle)
+      leftCP2 = utils.offsetFrom(node2, node2.size() + deviationRadius, leftLine.endAngle + deviationAngle)
       rightLine = utils.leftOuterLineBetween(node2, node1)
-      rightCP1 = utils.offsetFrom(node2, node2.weight + deviationRadius, rightLine.startAngle - deviationAngle)
-      rightCP2 = utils.offsetFrom(node1, node1.weight + deviationRadius, rightLine.endAngle + deviationAngle)
+      rightCP1 = utils.offsetFrom(node2, node2.size() + deviationRadius, rightLine.startAngle - deviationAngle)
+      rightCP2 = utils.offsetFrom(node1, node1.size() + deviationRadius, rightLine.endAngle + deviationAngle)
 
       #@ctx.fillStyle = node2.colour()
       #@ctx.beginPath()
@@ -53,7 +53,7 @@ define ["utils"], (utils) ->
       #@ctx.closePath()
 
     drawNode: (node) ->
-      radius = node.weight
+      radius = node.size()
       if node.numConnections() < 1
         #@ctx.fillStyle = if node.active then "rgba(255,0,255,0.5)" else "rgba(255,255,255,0.5)"
         @ctx.moveTo(node.x,node.y)
@@ -61,10 +61,10 @@ define ["utils"], (utils) ->
       else
         #@ctx.fillStyle = node.colour()
         sortedConns = node.sortedConns()
-        startp = utils.offsetFrom(node, node.weight, utils.middleAngle(sortedConns, sortedConns.length - 1, true))
+        startp = utils.offsetFrom(node, node.size(), utils.middleAngle(sortedConns, sortedConns.length - 1, true))
         @ctx.moveTo(startp.x, startp.y)
         for c, i in sortedConns
-          p = utils.offsetFrom(node, node.weight, utils.middleAngle(sortedConns, i, true))
+          p = utils.offsetFrom(node, node.size(), utils.middleAngle(sortedConns, i, true))
           @ctx.lineTo(p.x, p.y)
         @ctx.lineTo(startp.x, startp.y)
       @drawConnection(node, conn?.node) for id, conn of node.connections

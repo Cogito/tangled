@@ -99,8 +99,8 @@ define [], () ->
     startAngle = middleAngle(startSortedConns, node2Index, false);
     endAngle = middleAngle(endSortedConns, node1Index, true);
     return {
-      start: offsetFrom(nodeA, nodeA.weight, startAngle)
-      end: offsetFrom(nodeB, nodeB.weight, endAngle)
+      start: offsetFrom(nodeA, nodeA.size(), startAngle)
+      end: offsetFrom(nodeB, nodeB.size(), endAngle)
       startAngle: startAngle
       endAngle: endAngle
     }
@@ -110,9 +110,9 @@ define [], () ->
   findClosestInSet = (point, nodes) ->
     return null if nodes.length < 1
     closest = nodes[0]
-    min = distanceBetween(closest, point) - closest.weight
+    min = distanceBetween(closest, point) - closest.size()
     for node in nodes
-      curr = distanceBetween(node, point) - node.weight
+      curr = distanceBetween(node, point) - node.size()
       if curr < min
         min = curr
         closest = node
