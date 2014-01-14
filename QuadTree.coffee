@@ -1,10 +1,15 @@
 define [], () ->
   class QuadTree
     constructor: (x, y, w, h) ->
-      @node = new Node(x, y, w, h)
+      @node = new Node(this, x, y, w, h)
 
     add: (object) ->
       @node.add(object)
+
+    remove: (object) ->
+      @node.remove(object)
+
+    removeChildren: ->
 
     getObjects: (x, y, w, h) ->
       nodes = []
@@ -15,7 +20,7 @@ define [], () ->
       return shapes
 
   class Node
-    constructor: (@x, @y, @w, @h) ->
+    constructor: (@parent, @x, @y, @w, @h) ->
       @objects = []
       @children = null
 
@@ -25,10 +30,10 @@ define [], () ->
 
         if @objects.length > 2
           @children = [
-            new Node(@x, @y, @w / 2, @h / 2)
-            new Node(@x + @w / 2, @y, @w / 2, @h / 2)
-            new Node(@x, @y + @h / 2, @w / 2, @h / 2)
-            new Node(@x + @w / 2, @y + @h / 2, @w / 2, @h / 2)
+            new Node(this, @x, @y, @w / 2, @h / 2)
+            new Node(this, @x + @w / 2, @y, @w / 2, @h / 2)
+            new Node(this, @x, @y + @h / 2, @w / 2, @h / 2)
+            new Node(this, @x + @w / 2, @y + @h / 2, @w / 2, @h / 2)
           ]
 
           for object in @objects
@@ -42,6 +47,24 @@ define [], () ->
         for node in @children
           if node.contains(object)
             node.add(object)
+
+    remove: (object) ->
+      return if not @contains object
+      if @children is null
+        @objects = @objects.filter (el) -> el isnt object
+        @parent.removeChildren() if @objects.length is 0
+      else
+        for child in @children when child.contains object
+          child.remove object
+
+    removeChildren: ->
+      remove = true
+      for child in @children when child.children and child.children.length isnt 0
+        remove = false
+      if remove
+        @objects = []
+        @children = null
+        @parent.removeChildren()
 
     contains: (object) ->
       @x < object.x < @x + @w and @y < object.y < @y + @h
