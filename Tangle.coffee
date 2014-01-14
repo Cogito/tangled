@@ -92,6 +92,7 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       if node.weight <= 0
         (conn.node.deleteConnection(node)) for id, conn of node.connections
         @nodes = @nodes.filter (n) -> n isnt node
+        @quadtree.remove node
       else
         node.setWeight(node.weight - 0.1)
       return
