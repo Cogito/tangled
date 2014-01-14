@@ -27,6 +27,12 @@ define [], () ->
   normaliseAngle = (angle) -> (angle + Math.PI) % (2 * Math.PI) - Math.PI
 
   distanceBetween = (a, b) ->  Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))
+  squareDistanceBetween = (a, b) ->  (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)
+  vertexAngle = (v, a, b) ->
+    Math.acos(
+      (squareDistanceBetween(v, a) + squareDistanceBetween(v, b) - squareDistanceBetween(a, b))/
+      (2*distanceBetween(v,a)*distanceBetween(v,b))
+    )
 
 
   # Creates an object with x and y defined,
@@ -124,6 +130,8 @@ define [], () ->
     requestAnimationFrame
     normaliseAngle
     distanceBetween
+    vertexAngle
+    squareDistanceBetween
     getMouse
     middleAngle
     leftOuterLineBetween
