@@ -8,5 +8,20 @@
 <canvas id="game-canvas" width="800px" height="500px"></canvas>
 <div id="fps"></div>
 <script type="text/javascript" data-main="tangled" src="bower_components/requirejs/require.js"></script>
+<form id="colour-form">
+    <fieldset>
+        <label for="colour-background">Background</label>
+        <input id="colour-background" name="background" type="color">
+        <label for="colour-fogofwar">Fog of War</label>
+        <input id="colour-fogofwar" name="fogofwar" type="color">
+        <label for="colour-deathzone">Death Zone</label>
+        <input id="colour-deathzone" name="deathzone" type="color">
+        <label for="colour-tangle">Tangle</label>
+        <input id="colour-tangle" name="tangle" type="color">
+        <label for="colour-tangleoutline">Tangle Outline</label>
+        <input id="colour-tangleoutline" name="tangleoutline" type="color">
+    </fieldset>
+    <textarea id="colour-output" readonly></textarea>
+</form>
 </body>
 </html>

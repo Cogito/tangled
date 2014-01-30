@@ -16,9 +16,6 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
       @quadtree = new QuadTree 0, 0, @game.width, @game.height
       @graph = new Graph
 
-      @innerFillStyle = "rgba(255,255,255,1)"
-      @deadzoneFillStyle = "#00CCA4" #"rgb(196,51,25)"
-
     allNodes: ->
       @allNodesArray
 

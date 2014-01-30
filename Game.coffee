@@ -1,4 +1,4 @@
-define ["utils", "Tangle", "Source", "Drawing", "SoundEffects"], (utils, Tangle, Source, Drawing, SoundEffects) ->
+define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"], (utils, Tangle, Source, Drawing, SoundEffects, ColourManager) ->
   class Game
     constructor: (@canvas) ->
       @paused = true
@@ -21,6 +21,8 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects"], (utils, Tangle,
       @fogOfWarCanvas.height = @canvas.height
 
       @soundEffects = new SoundEffects(@canvas)
+
+      @colourManager = new ColourManager()
 
       @setupEventHandlers()
 
@@ -63,6 +65,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects"], (utils, Tangle,
         @update()
         @nextTick += 100
       @draw()
+      @colourManager.updateOutput()
 
     draw: ->
       @drawing.render(@sources, @tangle)

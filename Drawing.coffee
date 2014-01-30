@@ -10,9 +10,9 @@ define ["utils", "Source"], (utils, Source) ->
       @frameHeight = @canvas.height
 
     render: (sources, tangle) ->
-      @clear(@ctx, "#FF6400")
+      @clear(@ctx, @game.colourManager.getColour("fogofwar"))
       @drawFogOfWar(@fogOfWarCtx, tangle.allNodes())
-      @clear(@tangleCtx, "#FF9856")#"rgb(50,50,70)")
+      @clear(@tangleCtx, @game.colourManager.getColour("background"))
       @drawNodes(@tangleCtx, sources)
       @drawTangle(@tangleCtx, tangle)
       #@ctx.drawImage(@game.tangleCanvas, 0, 0)
@@ -23,7 +23,7 @@ define ["utils", "Source"], (utils, Source) ->
 
     clear: (context, bgColour = "rgb(0,0,0)") ->
       context.save()
-      context.fillStyle = @tangle.deadzoneFillStyle
+      context.fillStyle = @game.colourManager.getColour("deathzone")
       context.fillRect(0, 0, @frameWidth, @frameHeight)
       context.fillStyle = bgColour
       context.fillRect(@game.border, @game.border, @frameWidth - 2 * @game.border, @frameHeight - 2 * @game.border)
@@ -39,8 +39,8 @@ define ["utils", "Source"], (utils, Source) ->
 
 
     drawTangle: (context, tangle) ->
-      context.strokeStyle = "rgba(100,100,255,0.15)"
-      context.fillStyle = tangle.innerFillStyle
+      context.strokeStyle = @game.colourManager.getColour("tangleoutline")
+      context.fillStyle = @game.colourManager.getColour("tangle")
       context.beginPath()
       for node in tangle.allNodes() when not node?.isDying
         @drawNode(context, node)
