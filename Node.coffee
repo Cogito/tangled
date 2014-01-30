@@ -18,7 +18,7 @@ define ["utils"], (utils) ->
       n.setWeight(n.weight + w)
 
     size: ->
-      @weight * (0.5 * @numConnections() + 1)
+      @weight * (0.1 * @numConnections() * @numConnections() + 0.5)
 
     setWeight: (weight) ->
       if weight < 0 then weight = 0

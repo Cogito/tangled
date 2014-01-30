@@ -2,10 +2,12 @@
 # The player adds nodes, which are connected to existing nodes, in order to 'grow' the tangle.
 # Will need to handle connecting with existing nodes in this tangle as new nodes grow.
 # Node weight will propogate along the map, redistributing itself from heavy->light nodes.
-define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
+define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  QuadTree, Graph) ->
   class Tangle
     constructor: (@game) ->
       @nodes = []
+      @sources = []
+      @allNodesArray = []
       #@dyingNodes = []
       @minGrowDistance = 11
       @maxGrowDistance = 12
@@ -15,9 +17,20 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
       @graph = new Graph
 
       @innerFillStyle = "rgba(255,255,255,1)"
-      @deadzoneFillStyle = "rgb(196,51,25)"
+      @deadzoneFillStyle = "#00CCA4" #"rgb(196,51,25)"
+
+    allNodes: ->
+      @allNodesArray
+
+    addSource: (source) ->
+      @allNodesArray.push source
+      @sources.push source
+      @quadtree.add source
+      graphNode = @graph.addNode source.id
+      graphNode.node = source
 
     addNode: (node, parents...) ->
+      @allNodesArray.push node
       @nodes.push node
       @quadtree.add node
       graphNode = @graph.addNode node.id
@@ -30,12 +43,12 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
         parent = node
 
     doTransfers: ->
-      node.doTransfers() for node in @nodes
+      node.doTransfers() for node in @allNodes()
 
     prepareTransfers: ->
-      node.prepareTransfers() for node in @nodes
+      node.prepareTransfers() for node in @allNodes()
 
-    findClosestNode: (point) -> utils.findClosestInSet(point, @nodes)
+    findClosestNode: (point) -> utils.findClosestInSet(point, @allNodes())
 
     findNodesNear: (point, radius = @maxGrowDistance) ->
       close = []
@@ -49,6 +62,7 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
     grow: (p, parent) ->
       # Don't connect to nodes that are connected to each other, because it sucks
       closeNodes = @findNodesNear(p, @maxGrowDistance)
+      closeNodes = closeNodes.concat @game.sources.filter (el) -> utils.distanceBetween(el, p) <= @maxGrowDistance
       ###found = {}
       findConnectedNodesIn = (n, set) ->
         return (conn.node for id, conn of n.connections when set.indexOf(conn.node) != -1 and not found[conn.node.id])
@@ -80,6 +94,10 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
 
       closest = closeNodes[0]
 
+      if closest instanceof Source
+        @addSource closest
+        @game.sources = @game.sources.filter (el) -> el isnt closest
+
       if closest and utils.distanceBetween(parent, closest) < @maxGrowDistance
         @addConnection(parent, closest)
         return closest
@@ -95,27 +113,30 @@ define ["utils", "Node", "QuadTree", "Graph"], (utils, Node, QuadTree, Graph) ->
           return node
 
     growRandomly: (n = 1, chance = 1) ->
-      for node in @nodes
+      for node in @allNodes()
         # Grow like crazy!
         if node?.numConnections() == n and Math.random() <= chance and node isnt @activeNode and not node.isDying
           p = utils.offsetFrom(node, node.size() + @maxGrowDistance - 1, utils.middleAngle(node.sortedConns(), 0, Math.random() < 0.5) + Math.random() - 0.5)
           @grow(p, node)
+          @game.playSound("grow_random", p)
 
     killNode: (node) ->
       if node.weight <= 0
         (conn.node.deleteConnection(node)) for id, conn of node.connections
         @nodes = @nodes.filter (n) -> n isnt node
+        @allNodesArray = @allNodesArray.filter (n) -> n isnt node
         @quadtree.remove node
       else
         node.setWeight(node.weight - 0.1)
       return
 
     killDyingNodes: ->
-      nodesToKill = (node for node in @nodes when node?.isDying)
+      nodesToKill = (node for node in @allNodes() when node?.isDying)
       for node in nodesToKill
         if node.numConnections() <= 2
-           for id, conn of node.connections when conn.node.numConnections() is 2
-             conn.node.isDying = true
+          for id, conn of node.connections when conn.node.numConnections() is 2
+            conn.node.isDying = true
+            @game.playSound("die", conn.node)
         @killNode node
       return
 

@@ -14,16 +14,6 @@ define [], () ->
 
   requestAnimationFrame = window.requestAnimationFrame
 
-  ###console = {
-    maxLines: 10
-    log: (msg) ->
-      consoleDiv = document.getElementById('console');
-      para = document.createElement('p')
-      para.appendChild(document.createTextNode(msg))
-      consoleDiv.appendChild(para)
-      consoleDiv.removeChild(consoleDiv.firstChild) if consoleDiv.childNodes.length > this.maxLines
-  }###
-
   normaliseAngle = (angle) -> (angle + Math.PI) % (2 * Math.PI) - Math.PI
 
   distanceBetween = (a, b) ->  Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))

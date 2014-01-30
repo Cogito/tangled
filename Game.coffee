@@ -1,4 +1,4 @@
-define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing) ->
+define ["utils", "Tangle", "Source", "Drawing", "SoundEffects"], (utils, Tangle, Source, Drawing, SoundEffects) ->
   class Game
     constructor: (@canvas) ->
       @paused = true
@@ -12,18 +12,30 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
       @fps = 0
       @fps_now
       @fps_last = new Date()
+      @fogOfWar = true
+      @tangleCanvas = document.createElement("canvas")
+      @tangleCanvas.width = @canvas.width
+      @tangleCanvas.height = @canvas.height
+      @fogOfWarCanvas = document.createElement("canvas")
+      @fogOfWarCanvas.width = @canvas.width
+      @fogOfWarCanvas.height = @canvas.height
+
+      @soundEffects = new SoundEffects(@canvas)
 
       @setupEventHandlers()
 
       @tangle = new Tangle(this)
 
-      for i in [1..10]
-        @tangle.addChain [new Source(
-          this,
+      @sources = (for i in [1..10]
+        new Source(
+          null,
           4 * @border + (@width - 8 * @border) * Math.random(),
           4 * @border + (@height - 8 * @border) * Math.random(),
-          7
-        )]
+          5
+        )
+      )
+
+      @tangle.addSource(@sources.pop())
 
       @drawing = new Drawing(this)
 
@@ -40,7 +52,7 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
       @fps_now = new Date()
       @fps = 1000 / (@fps_now - @fps_last)
       @fps_last = @fps_now
-      document.getElementById('fps').innerHTML = @tangle.nodes.length + " nodes; " + Math.round(@fps) + " fps";
+      document.getElementById('fps').innerHTML = @tangle.allNodes().length + " nodes; " + Math.round(@fps) + " fps";
       if not @paused then window.requestAnimationFrame(@mainLoop)
       if !@startTime
         @startTime = time
@@ -53,15 +65,14 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
       @draw()
 
     draw: ->
-      @drawing.clear()
-      @drawing.drawTangle(@tangle)
+      @drawing.render(@sources, @tangle)
 
     update: ->
       @tangle.growRandomly(1, 0.1)
       @tangle.growRandomly(2, 0.0001)
 
       hit = @lastKnownMouse
-      if hit and @mouseDragging and @tangle.nodes.length > 0
+      if hit and @mouseDragging and @tangle.allNodes().length > 0
         if not @tangle.activeNode
           closest = utils.findClosestInSet(hit, @tangle.findNodesNear(hit))
           if closest
@@ -75,6 +86,7 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
             p = utils.offsetFrom(@tangle.activeNode, distance, Math.atan2(hit.y - @tangle.activeNode.y, hit.x - @tangle.activeNode.x))
             newNode = @tangle.grow(p, @tangle.activeNode)
             @tangle.activeNode = newNode
+            @playSound("grow_active", newNode)
 
       @tangle.killDyingNodes()
       @tangle.prepareTransfers()
@@ -92,3 +104,10 @@ define ["utils", "Tangle", "Source", "Drawing"], (utils, Tangle, Source, Drawing
 
     inBounds: (p) ->
       p.x > @border and p.x < @width - @border and p.y > @border and p.y < @height - @border
+
+    playSound: (event, param) ->
+      switch event
+        when "grow_active", "grow_random"
+          @soundEffects.playSoundAt("grow", param)
+        when "die"
+          @soundEffects.playSoundAt("die", param)

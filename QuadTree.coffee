@@ -73,6 +73,9 @@ define [], () ->
       @x < region[0] + region[2] and @x + @w > region[0] and @y < region[1] + region[3] and @y + @h > region[1]
 
     getNodes: (region, nodes) ->
+      if @objects
+        nodes.push this
+        return
       for child in @children
         if child.overlaps(region)
           if child.objects
