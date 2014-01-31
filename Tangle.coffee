@@ -57,9 +57,11 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
       return close
 
     grow: (p, parent) ->
+      self = this
       # Don't connect to nodes that are connected to each other, because it sucks
       closeNodes = @findNodesNear(p, @maxGrowDistance)
-      closeNodes = closeNodes.concat @game.sources.filter (el) -> utils.distanceBetween(el, p) <= @maxGrowDistance
+      closeSources = @game.sources.filter (el) -> utils.distanceBetween(el, p) <= self.maxGrowDistance
+      closeNodes = closeNodes.concat closeSources
       ###found = {}
       findConnectedNodesIn = (n, set) ->
         return (conn.node for id, conn of n.connections when set.indexOf(conn.node) != -1 and not found[conn.node.id])
@@ -91,11 +93,10 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
 
       closest = closeNodes[0]
 
-      if closest instanceof Source
-        @addSource closest
-        @game.sources = @game.sources.filter (el) -> el isnt closest
-
       if closest and utils.distanceBetween(parent, closest) < @maxGrowDistance
+        if closest instanceof Source
+          @addSource closest
+          @game.sources = @game.sources.filter (el) -> el isnt closest
         @addConnection(parent, closest)
         return closest
       else
