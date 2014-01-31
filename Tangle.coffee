@@ -20,6 +20,7 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
       @allNodesArray
 
     addSource: (source) ->
+      return if source.tangle == this
       @allNodesArray.push source
       @sources.push source
       @quadtree.add source
