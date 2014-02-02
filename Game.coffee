@@ -96,14 +96,28 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
       @tangle.doTransfers()
 
     setupEventHandlers: ->
-      @canvas.addEventListener "mousemove", (event) =>
-        @lastKnownMouse = utils.getMouse(event, @canvas)
-      # Super simple dragging detection. TODO will need to revisit when behaviour advances
-      @canvas.addEventListener "mousedown", (event) =>
+      starting = (event) =>
+        event.preventDefault()
         @mouseDragging = true
-      @canvas.addEventListener "mouseup", (event) =>
+      stopping = (event) =>
+        event.preventDefault()
         @mouseDragging = false
         @tangle.activeNode = null
+      moving = (event) =>
+        if event.changedTouches?.length > 0 # touch event handling
+          @lastKnownMouse = utils.getMouse(event.changedTouches[0], @canvas) # use the first touch event TODO multi touch events
+        else
+          @lastKnownMouse = utils.getMouse(event, @canvas)
+
+      @canvas.addEventListener "mousemove", moving
+      # Super simple dragging detection. TODO will need to revisit when behaviour advances
+      @canvas.addEventListener "mousedown", starting
+      @canvas.addEventListener "mouseup", stopping
+      @canvas.addEventListener "touchstart", starting
+      @canvas.addEventListener "touchend", stopping
+      @canvas.addEventListener "touchcancel", stopping
+      @canvas.addEventListener "touchleave", stopping
+      @canvas.addEventListener "touchmove", moving
 
     inBounds: (p) ->
       p.x > @border and p.x < @width - @border and p.y > @border and p.y < @height - @border
