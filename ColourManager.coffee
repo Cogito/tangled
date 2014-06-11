@@ -2,8 +2,11 @@
 define [], () ->
   class ColourManager
     constructor: () ->
-      @defaultColours = {background:"#0b0d22",fogofwar:"#ffffff",deathzone:"#00a8d0",tangle:"#e6d256",tangleoutline:"#9f783e"}
-      # #{background:"#0b0d22",fogofwar:"#004667",deathzone:"#00cca4",tangle:"#464546",tangleoutline:"#7777ff"}
+      storedColours = localStorage.getItem("defaultColours")
+      if storedColours
+        @defaultColours = JSON.parse(storedColours)
+      else
+        @defaultColours = {background:"#0b0d22",fogofwar:"#ffffff",deathzone:"#00a8d0",tangle:"#e6d256",tangleoutline:"#9f783e"}
       @formElements = {
         background: document.getElementById('colour-background')
         fogofwar: document.getElementById('colour-fogofwar')
@@ -23,4 +26,7 @@ define [], () ->
         el.value = @defaultColours[name]
 
     updateOutput: ->
-      @outputElement.value = "{"+(name + ":" + ('"'+el.value+'"') for name, el of @formElements)+"}"
+      colours = {}
+      colours[name] = el.value for name, el of @formElements
+      localStorage.setItem("defaultColours", JSON.stringify(colours))
+      @outputElement.value = JSON.stringify(colours)
