@@ -1,10 +1,9 @@
 ### Some Utilities ###
 define [], () ->
   # This is from some stackoverflow I forget
-  uniqid = (->
+  uniqid = do ->
     id = 0
     { get: -> id++ }
-  )()
 
   # Thanks Raganwald for the idea http://raganwald.com/2012/12/01/more-combinators.html
   fluent = (methodBody) ->
