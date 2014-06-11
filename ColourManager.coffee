@@ -23,4 +23,4 @@ define [], () ->
         el.value = @defaultColours[name]
 
     updateOutput: ->
-      @outputElement.value = "{"+(name + ":" + el.value for name, el of @formElements)+"}"
+      @outputElement.value = "{"+(name + ":" + ('"'+el.value+'"') for name, el of @formElements)+"}"
