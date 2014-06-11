@@ -11,6 +11,7 @@ define ["utils", "Source"], (utils, Source) ->
 
     render: (sources, tangle) ->
       @clear(@ctx, @game.colourManager.getColour("fogofwar"))
+      @fogOfWarCtx.clearRect(0,0,@frameWidth,@frameHeight)
       @drawFogOfWar(@fogOfWarCtx, tangle.allNodes())
       @clear(@tangleCtx, @game.colourManager.getColour("background"))
       @drawNodes(@tangleCtx, sources)
