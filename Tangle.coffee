@@ -26,6 +26,8 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
       @quadtree.add source
       graphNode = @graph.addNode source.id
       graphNode.node = source
+      source.tangle = this
+      return
 
     addNode: (node, parents...) ->
       @allNodesArray.push node
