@@ -68,7 +68,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
 
       if @time >= @nextTick
         @update()
-        @nextTick += @properties.tickLength
+        @nextTick = @time + @properties.tickLength
       @draw()
       @colourManager.updateOutput()
 
