@@ -40,6 +40,8 @@ define ["utils"], (utils) ->
 
     addConnection: (nodes...) ->
       for node in nodes when node?
+        continue if (@sortedConns().length >= @tangle.game.properties["maxConnectionsPerNode"] or
+                     node.sortedConns().length >= @tangle.game.properties["maxConnectionsPerNode"])
         @connections[node.id] = {
           node: node
           angle: Math.atan2 node.y - @y, node.x - @x

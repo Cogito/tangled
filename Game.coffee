@@ -3,6 +3,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
     constructor: (@canvas) ->
       @properties =
         soundOn: false
+        maxConnectionsPerNode: 4
         tickLength: 150
       @paused = true
       @mouseDragging = false
