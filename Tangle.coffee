@@ -49,6 +49,8 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
           for id, conn of node.connections when conn.node.numConnections() <= 2
             conn.node.isDying = true
             @game.playSound("die", conn.node)
+        if @findNodesNear(node).length > @game.properties.maxNeighbours
+          node.isDying = true
       return
 
     update: ->

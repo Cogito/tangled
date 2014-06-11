@@ -4,6 +4,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
       @properties =
         soundOn: false
         maxConnectionsPerNode: 4
+        maxNeighbours: 5
         tickLength: 150
       @paused = true
       @mouseDragging = false
