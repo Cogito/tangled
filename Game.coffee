@@ -1,6 +1,8 @@
 define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"], (utils, Tangle, Source, Drawing, SoundEffects, ColourManager) ->
   class Game
     constructor: (@canvas) ->
+      @properties =
+        tickLength: 150
       @paused = true
       @mouseDragging = false
       @startTime = null
@@ -63,7 +65,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
 
       if @time >= @nextTick
         @update()
-        @nextTick += 100
+        @nextTick += @properties.tickLength
       @draw()
       @colourManager.updateOutput()
 
