@@ -2,6 +2,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
   class Game
     constructor: (@canvas) ->
       @properties =
+        soundOn: false
         tickLength: 150
       @paused = true
       @mouseDragging = false

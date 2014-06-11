@@ -24,6 +24,7 @@ define ["AudioBufferLoader"], (AudioBufferLoader) ->
       @audioBufferLoader.load(@sounds)
 
     playSound: (name) ->
+      return unless @game.properties.soundOn
       source = @context.createBufferSource()
       source.buffer = @sounds[name]?.buffer
       source.connect @panner
