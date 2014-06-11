@@ -52,6 +52,8 @@ define ["utils"], (utils) ->
         @connectionsCount++
         node.sortedConnsArray = null
         @sortedConnsArray = null
+        node.sortedConns()
+        @sortedConns()
 
     deleteConnection: (target) ->
       if delete @connections[target.id]
