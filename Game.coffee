@@ -95,9 +95,8 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
             @tangle.activeNode = newNode
             @playSound("grow_active", newNode)
 
-      @tangle.killDyingNodes()
-      @tangle.prepareTransfers()
-      @tangle.doTransfers()
+      @tangle.preUpdate()
+      @tangle.update()
 
     setupEventHandlers: ->
       starting = (event) =>

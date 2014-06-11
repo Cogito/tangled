@@ -40,11 +40,23 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
         @addNode node, parent
         parent = node
 
-    doTransfers: ->
-      node.doTransfers() for node in @allNodes()
+    preUpdate: ->
+      for node in @allNodes()
+        node.prepareTransfers()
+        if node.numConnections == 0
+          node.isDying = true
+        if node.isDying && node.numConnections() <= 2
+          for id, conn of node.connections when conn.node.numConnections() <= 2
+            conn.node.isDying = true
+            @game.playSound("die", conn.node)
+      return
 
-    prepareTransfers: ->
-      node.prepareTransfers() for node in @allNodes()
+    update: ->
+      for node in @allNodes()
+        node.doTransfers()
+        if node.isDying
+          @killNode node
+      return
 
     findClosestNode: (point) -> utils.findClosestInSet(point, @allNodes())
 
@@ -127,16 +139,6 @@ define ["utils", "Node", "Source", "QuadTree", "Graph"], (utils, Node, Source,  
         @quadtree.remove node
       else
         node.setWeight(node.weight - 0.1)
-      return
-
-    killDyingNodes: ->
-      nodesToKill = (node for node in @allNodes() when node?.isDying)
-      for node in nodesToKill
-        if node.numConnections() <= 2
-          for id, conn of node.connections when conn.node.numConnections() is 2
-            conn.node.isDying = true
-            @game.playSound("die", conn.node)
-        @killNode node
       return
 
     addConnection: (node1, node2) ->
