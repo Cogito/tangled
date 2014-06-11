@@ -16,7 +16,6 @@ define ["utils", "Source"], (utils, Source) ->
       @clear(@tangleCtx, @game.colourManager.getColour("background"))
       @drawNodes(@tangleCtx, sources)
       @drawTangle(@tangleCtx, tangle)
-      #@ctx.drawImage(@game.tangleCanvas, 0, 0)
       @fogOfWarCtx.globalCompositeOperation = "source-in"
       @fogOfWarCtx.drawImage(@game.tangleCanvas, 0, 0)
       @fogOfWarCtx.globalCompositeOperation = "source-over"
@@ -66,21 +65,11 @@ define ["utils", "Source"], (utils, Source) ->
       rightCP1 = utils.offsetFrom(node2, node2.size() + deviationRadius, rightLine.startAngle - deviationAngle)
       rightCP2 = utils.offsetFrom(node1, node1.size() + deviationRadius, rightLine.endAngle + deviationAngle)
 
-      #@ctx.fillStyle = node2.colour()
-      #@ctx.beginPath()
-      # line between nodes
-      #@ctx.moveTo(node1.x, node1.y);
-      #@ctx.lineTo(node2.x, node2.y);
-      #@ctx.stroke()
-      # body of tangle segment
       context.moveTo(leftLine.start.x, leftLine.start.y)
       context.bezierCurveTo(leftCP1.x, leftCP1.y, leftCP2.x, leftCP2.y, leftLine.end.x, leftLine.end.y)
       context.lineTo(rightLine.start.x, rightLine.start.y)
       context.bezierCurveTo(rightCP1.x, rightCP1.y, rightCP2.x, rightCP2.y, rightLine.end.x, rightLine.end.y)
       context.lineTo(leftLine.start.x, leftLine.start.y)
-      #@ctx.stroke()
-      #@ctx.fill()
-      #@ctx.closePath()
 
     drawNode: (context, node) ->
       radius = node.size()
