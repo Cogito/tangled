@@ -48,6 +48,7 @@ define ["utils", "Source"], (utils, Source) ->
       context.stroke()
       for node in tangle.allNodes() when node?.isDying
         context.fillStyle = "rgba(255,255,255,"+node.weight / tangle.maxNodeWeight+")"
+        context.strokeStyle = "rgba(255,0,0,1)"
         context.beginPath()
         @drawNode(context, node)
         context.fill()

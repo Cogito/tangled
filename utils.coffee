@@ -69,16 +69,20 @@ define [], () ->
 
   middleAngle = (conns, index, left) ->
     nextIndex = if left then index - 1 else index + 1
-    leftAngle = conns[index].angle
+    leftNode = conns[index]
     if conns.length == 1
       return normaliseAngle(conns[index].angle + Math.PI)
 
     if left and nextIndex < 0
-      rightAngle = conns[conns.length - 1].angle
+      rightNode = conns[conns.length - 1]
     else if not left and nextIndex == conns.length
-      rightAngle = conns[0].angle
+      rightNode = conns[0]
     else
-      rightAngle = conns[nextIndex].angle
+      rightNode = conns[nextIndex]
+
+    return middleTemp(leftNode.angle, rightNode.angle, left)
+
+  middleTemp = (leftAngle, rightAngle, left) ->
     res = (leftAngle + rightAngle) / 2
     if (left and leftAngle < rightAngle) or ((not left) and leftAngle > rightAngle)
       res += Math.PI
