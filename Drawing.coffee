@@ -55,7 +55,7 @@ define ["utils", "Source"], (utils, Source) ->
         context.stroke()
 
     drawConnection: (context, node1, node2) ->
-      if (!node1 or !node2 or node1 is node2 or node2.weight > node1.weight)
+      if (!node1 or !node2 or node1 is node2 or node2.weight < node1.weight)
         return
       deviationAngle = 0.5
       deviationRadius = 1
