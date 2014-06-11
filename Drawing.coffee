@@ -87,7 +87,8 @@ define ["utils", "Source"], (utils, Source) ->
           p = utils.offsetFrom(node, node.size(), utils.middleAngle(sortedConns, i, true))
           context.lineTo(p.x, p.y)
         context.lineTo(startp.x, startp.y)
-      @drawConnection(context, node, conn?.node) for id, conn of node.connections
+      for conn in node.sortedConns()
+        @drawConnection(context, node, conn?.node)
 
     drawNodes: (context, nodes) ->
       context.strokeStyle = "rgba(255,255,255,0.15)"
