@@ -2,13 +2,8 @@
 define [], () ->
   class ColourManager
     constructor: () ->
-      @defaultColours = {
-        background: "#FF9856"
-        fogofwar: "#FF6400"
-        deathzone: "#00CCA4"
-        tangle: "#FFFFFF"
-        tangleoutline: "#7777FF"
-      }
+      @defaultColours = {background:"#0b0d22",fogofwar:"#ffffff",deathzone:"#00a8d0",tangle:"#e6d256",tangleoutline:"#9f783e"}
+      # #{background:"#0b0d22",fogofwar:"#004667",deathzone:"#00cca4",tangle:"#464546",tangleoutline:"#7777ff"}
       @formElements = {
         background: document.getElementById('colour-background')
         fogofwar: document.getElementById('colour-fogofwar')
