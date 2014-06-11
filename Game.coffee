@@ -58,7 +58,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
       @fps_now = new Date()
       @fps = 1000 / (@fps_now - @fps_last)
       @fps_last = @fps_now
-      document.getElementById('fps').innerHTML = @tangle.allNodes().length + " nodes; " + Math.round(@fps) + " fps";
+      document.getElementById('fps').innerHTML = @tangle.allNodes().length + " nodes; " + Math.round(@fps) + " fps"
       if not @paused then window.requestAnimationFrame(@mainLoop)
       if !@startTime
         @startTime = time
