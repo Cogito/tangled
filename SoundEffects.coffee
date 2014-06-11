@@ -1,7 +1,8 @@
 define ["AudioBufferLoader"], (AudioBufferLoader) ->
   class SoundEffects
-    constructor: (@canvas) ->
+    constructor: (@game) ->
       self = this
+      @canvas = @game.canvas
       @sounds = {
         die: { url:"sounds/velcro-strap-2.wav" }
         grow: { url:"sounds/roll-over-1.mp3" }

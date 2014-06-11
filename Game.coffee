@@ -20,7 +20,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
       @fogOfWarCanvas.width = @canvas.width
       @fogOfWarCanvas.height = @canvas.height
 
-      @soundEffects = new SoundEffects(@canvas)
+      @soundEffects = new SoundEffects(this)
 
       @colourManager = new ColourManager()
 
