@@ -6,12 +6,10 @@ define ["utils", "Source"], (utils, Source) ->
       @ctx = @canvas.getContext('2d')
       @tangleCtx = @game.tangleCanvas.getContext('2d')
       @fogOfWarCtx = @game.fogOfWarCanvas.getContext('2d')
-      @frameWidth = @canvas.width
-      @frameHeight = @canvas.height
 
     render: (sources, tangle) ->
       @clear(@ctx, @game.colourManager.getColour("fogofwar"))
-      @fogOfWarCtx.clearRect(0,0,@frameWidth,@frameHeight)
+      @fogOfWarCtx.clearRect(0,0,@canvas.width,@canvas.width)
       @drawFogOfWar(@fogOfWarCtx, tangle.allNodes())
       @clear(@tangleCtx, @game.colourManager.getColour("background"))
       @drawNodes(@tangleCtx, sources)
@@ -23,10 +21,11 @@ define ["utils", "Source"], (utils, Source) ->
 
     clear: (context, bgColour = "rgb(0,0,0)") ->
       context.save()
-      context.fillStyle = @game.colourManager.getColour("deathzone")
-      context.fillRect(0, 0, @frameWidth, @frameHeight)
+      canvas = context.canvas
+      #context.fillStyle = @game.colourManager.getColour("deathzone")
       context.fillStyle = bgColour
-      context.fillRect(@game.border, @game.border, @frameWidth - 2 * @game.border, @frameHeight - 2 * @game.border)
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      #context.fillRect(@game.border, @game.border, @frameWidth - 2 * @game.border, @frameHeight - 2 * @game.border)
       context.restore()
 
     drawFogOfWar: (context, nodes) ->
