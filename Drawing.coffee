@@ -6,12 +6,10 @@ define ["utils", "Source"], (utils, Source) ->
       @ctx = @canvas.getContext('2d')
       @tangleCtx = @game.tangleCanvas.getContext('2d')
       @fogOfWarCtx = @game.fogOfWarCanvas.getContext('2d')
-      @frameWidth = @canvas.width
-      @frameHeight = @canvas.height
 
     render: (sources, tangle) ->
       @clear(@ctx, @game.colourManager.getColour("fogofwar"))
-      @fogOfWarCtx.clearRect(0,0,@frameWidth,@frameHeight)
+      @fogOfWarCtx.clearRect(0,0,@canvas.width,@canvas.width)
       @drawFogOfWar(@fogOfWarCtx, tangle.allNodes())
       @clear(@tangleCtx, @game.colourManager.getColour("background"))
       @drawNodes(@tangleCtx, sources)
@@ -23,10 +21,11 @@ define ["utils", "Source"], (utils, Source) ->
 
     clear: (context, bgColour = "rgb(0,0,0)") ->
       context.save()
-      context.fillStyle = @game.colourManager.getColour("deathzone")
-      context.fillRect(0, 0, @frameWidth, @frameHeight)
+      canvas = context.canvas
+      #context.fillStyle = @game.colourManager.getColour("deathzone")
       context.fillStyle = bgColour
-      context.fillRect(@game.border, @game.border, @frameWidth - 2 * @game.border, @frameHeight - 2 * @game.border)
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      #context.fillRect(@game.border, @game.border, @frameWidth - 2 * @game.border, @frameHeight - 2 * @game.border)
       context.restore()
 
     drawFogOfWar: (context, nodes) ->
@@ -66,27 +65,27 @@ define ["utils", "Source"], (utils, Source) ->
       rightCP1 = utils.offsetFrom(node2, node2.size() + deviationRadius, rightLine.startAngle - deviationAngle)
       rightCP2 = utils.offsetFrom(node1, node1.size() + deviationRadius, rightLine.endAngle + deviationAngle)
 
-      context.moveTo(leftLine.start.x, leftLine.start.y)
-      context.bezierCurveTo(leftCP1.x, leftCP1.y, leftCP2.x, leftCP2.y, leftLine.end.x, leftLine.end.y)
-      context.lineTo(rightLine.start.x, rightLine.start.y)
-      context.bezierCurveTo(rightCP1.x, rightCP1.y, rightCP2.x, rightCP2.y, rightLine.end.x, rightLine.end.y)
-      context.lineTo(leftLine.start.x, leftLine.start.y)
+      @moveTo(context, leftLine.start)
+      @bezierCurveTo(context, leftCP1, leftCP2, leftLine.end)
+      @lineTo(context, rightLine.start)
+      @bezierCurveTo(context, rightCP1, rightCP2, rightLine.end)
+      @lineTo(context, leftLine.start)
 
     drawNode: (context, node) ->
       radius = node.size()
       if node.numConnections() < 1
         #@ctx.fillStyle = if node.active then "rgba(255,0,255,0.5)" else "rgba(255,255,255,0.5)"
-        context.moveTo(node.x,node.y)
-        context.arc(node.x, node.y, radius, 0 , 2 * Math.PI)
+        @moveTo(context, node)
+        @arc(context, node, radius, 0 , 2 * Math.PI)
       else
         #@ctx.fillStyle = node.colour()
         sortedConns = node.sortedConns()
         startp = utils.offsetFrom(node, node.size(), utils.middleAngle(sortedConns, sortedConns.length - 1, true))
-        context.moveTo(startp.x, startp.y)
+        @moveTo(context, startp)
         for c, i in sortedConns
           p = utils.offsetFrom(node, node.size(), utils.middleAngle(sortedConns, i, true))
-          context.lineTo(p.x, p.y)
-        context.lineTo(startp.x, startp.y)
+          @lineTo(context, p)
+        @lineTo(context, startp)
       for conn in node.sortedConns()
         @drawConnection(context, node, conn?.node)
 
@@ -103,5 +102,25 @@ define ["utils", "Source"], (utils, Source) ->
         radius = node.weight * 5
       else
         radius = node.tangle.maxGrowDistance * node.weight
-      context.moveTo(node.x,node.y)
-      context.arc(node.x, node.y, radius, 0 , 2 * Math.PI)
+      @moveTo(context, node)
+      @arc(context, node, radius, 0 , 2 * Math.PI)
+      return
+
+    moveTo: (context, p) ->
+      newp = @game.viewport.sceneToCanvas(p)
+      context.moveTo(newp.x, newp.y)
+
+    lineTo: (context, p) ->
+      newp = @game.viewport.sceneToCanvas(p)
+      context.lineTo(newp.x, newp.y)
+
+    arc: (context, p, radius, startAngle, endAngle) ->
+      newp = @game.viewport.sceneToCanvas(p)
+      newRadius = radius * @game.viewport.canvas.width / @game.viewport.view.width()
+      context.arc(newp.x, newp.y, newRadius, startAngle, endAngle)
+
+    bezierCurveTo: (context, cp1, cp2, end) ->
+      newCP1 = @game.viewport.sceneToCanvas(cp1)
+      newCP2 = @game.viewport.sceneToCanvas(cp2)
+      newEnd = @game.viewport.sceneToCanvas(end)
+      context.bezierCurveTo(newCP1.x, newCP1.y, newCP2.x, newCP2.y, newEnd.x, newEnd.y)
