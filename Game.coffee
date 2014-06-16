@@ -81,7 +81,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager",
       @tangle.growRandomly(1, 0.1)
       @tangle.growRandomly(2, 0.0001)
 
-      hit = @lastKnownMouse
+      hit = @viewport.canvasToScene(@lastKnownMouse) if @lastKnownMouse
       if hit and @mouseDragging and @tangle.allNodes().length > 0
         if not @tangle.activeNode
           closest = utils.findClosestInSet(hit, @tangle.findNodesNear(hit))
@@ -110,10 +110,21 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager",
         @mouseDragging = false
         @tangle.activeNode = null
       moving = (event) =>
+        @prevMouse = @lastKnownMouse
         if event.changedTouches?.length > 0 # touch event handling
           @lastKnownMouse = utils.getMouse(event.changedTouches[0], @canvas) # use the first touch event TODO multi touch events
         else
           @lastKnownMouse = utils.getMouse(event, @canvas)
+
+        if @mouseDragging and not @tangle.activeNode and @prevMouse # pan the view
+            oldMouse = @viewport.canvasToScene(@prevMouse)
+            newMouse = @viewport.canvasToScene(@lastKnownMouse)
+            @viewport.view.translate({x:oldMouse.x - newMouse.x, y: oldMouse.y - newMouse.y})
+      zoom = (event) =>
+        scale = if (event.deltaY < 0) then 0.95 else 1 / 0.95
+        @viewport.view.scaleAroundPoint(@viewport.canvasToScene(utils.getMouse(event, @canvas)), scale)
+        event.preventDefault()
+        event.stopPropagation()
 
       @canvas.addEventListener "mousemove", moving
       # Super simple dragging detection. TODO will need to revisit when behaviour advances
@@ -124,6 +135,7 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager",
       @canvas.addEventListener "touchcancel", stopping
       @canvas.addEventListener "touchleave", stopping
       @canvas.addEventListener "touchmove", moving
+      @canvas.addEventListener "wheel", zoom
 
     inBounds: (p) ->
       p.x > @border and p.x < @width - @border and p.y > @border and p.y < @height - @border
