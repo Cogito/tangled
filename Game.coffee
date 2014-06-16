@@ -1,4 +1,4 @@
-define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"], (utils, Tangle, Source, Drawing, SoundEffects, ColourManager) ->
+define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager", "CanvasViewPort"], (utils, Tangle, Source, Drawing, SoundEffects, ColourManager, CanvasViewPort) ->
   class Game
     constructor: (@canvas) ->
       @properties =
@@ -24,6 +24,8 @@ define ["utils", "Tangle", "Source", "Drawing", "SoundEffects", "ColourManager"]
       @fogOfWarCanvas = document.createElement("canvas")
       @fogOfWarCanvas.width = @canvas.width
       @fogOfWarCanvas.height = @canvas.height
+
+      @viewport = new CanvasViewPort(@canvas)
 
       @soundEffects = new SoundEffects(this)
 
